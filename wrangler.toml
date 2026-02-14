@@ -1,16 +1,15 @@
-$schema = "node_modules/wrangler/config-schema.json"
 name = "tactus-website"
 compatibility_date = "2026-02-14"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+ENVIRONMENT = "production"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "tactus-skills"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
-preview_database_id = "REPLACE_WITH_D1_PREVIEW_DATABASE_ID"
+database_id = "82987a5a-6344-4fd0-8bf6-8e4482096887"
 
 [[r2_buckets]]
 binding = "SKILLS_BUCKET"
 bucket_name = "tactus-skills"
-preview_bucket_name = "tactus-skills-preview"

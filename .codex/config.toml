@@ -9,7 +9,3 @@ url = "https://builds.mcp.cloudflare.com/mcp"
 
 [mcp_servers.cloudflare-observability]
 url = "https://observability.mcp.cloudflare.com/mcp"
-
-[mcp_servers.context7]
-command = "npx"
-args = ["-y", "@upstash/context7-mcp@latest"]

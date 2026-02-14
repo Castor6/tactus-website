@@ -1,19 +1,20 @@
 ---
 name: design-style
 description: |
-  Use this skill when the user asks to build, create, design, develop, or improve ANY frontend interface, web page, UI component, or visual element. This includes:
-  - Building landing pages, websites, web apps, dashboards, portfolios, or any web interface
-  - Creating UI components (buttons, forms, cards, navbars, modals, etc.)
-  - Designing pages with React, Vue, Next.js, Svelte, or any frontend framework
-  - Adding styling or improving visual design of existing components
-  - Implementing specific design aesthetics (modern, dark, minimalist, brutalist, etc.)
-  - User mentions "frontend", "UI", "UX", "design", "interface", "web design", or "styling"
-  - User asks for "beautiful", "modern", "professional", "clean", or any aesthetic adjective
-  - User requests help with CSS, Tailwind, styled-components, or any styling approach
+  Use this skill whenever the user asks to build, create, design, develop, improve, or style any frontend interface or visual element.
+  This includes:
+  - Landing pages, websites, web apps, dashboards, portfolios, or any web UI
+  - UI components (buttons, forms, cards, navbars, modals, etc.)
+  - React, Vue, Next.js, Svelte, or other frontend frameworks
+  - CSS, Tailwind, styled-components, or styling help
+  - Visual improvements or aesthetic upgrades
+  - Requests mentioning frontend, UI, UX, interface, web design, or styling
+  - Adjectives like beautiful, modern, clean, professional, minimalist, dark, brutalist, etc.
 
-  This skill automatically retrieves the appropriate design system prompt (Neo-brutalism, Modern Dark, Bauhaus, Cyberpunk, Material, etc.) to help create visually distinctive, production-grade frontend code instead of generic UI.
+  This skill loads the appropriate design system prompt (Neo-brutalism, Modern Dark, Bauhaus, Cyberpunk, Material, etc.) to generate distinctive, production-grade frontend code instead of generic UI.
+  
+  IMPORTANT: Trigger proactively for ANY frontend/UI-related request, even if no style is specified.
 
-  IMPORTANT: Trigger this skill proactively for ANY frontend/UI work, not just when design style is explicitly mentioned. The default style is Professional.
 allowed-tools: Read, Glob, Grep
 ---
 
