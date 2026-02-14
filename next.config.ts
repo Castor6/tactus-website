@@ -1,12 +1,12 @@
 import type { NextConfig } from "next";
-import { setupDevPlatform } from "@cloudflare/next-on-pages/next-dev";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
-  // Keep config minimal; Cloudflare local bindings are injected via setupDevPlatform.
+  // Keep config minimal; Cloudflare local bindings are injected in dev.
 };
 
 if (process.env.NODE_ENV === "development") {
-  setupDevPlatform().catch((error) => {
+  initOpenNextCloudflareForDev().catch((error) => {
     console.warn("Failed to initialize Cloudflare dev platform:", error);
   });
 }

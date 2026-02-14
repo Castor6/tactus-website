@@ -1,4 +1,4 @@
-import { getRequestContext } from "@cloudflare/next-on-pages";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export type D1PreparedStatement = {
   bind: (...values: unknown[]) => D1PreparedStatement;
@@ -34,7 +34,7 @@ export type CloudflareEnv = {
 };
 
 export function getCloudflareEnv() {
-  const { env } = getRequestContext();
+  const { env } = getCloudflareContext();
 
   return env as CloudflareEnv;
 }
