@@ -18,12 +18,12 @@ export default async function SubmitSkillPage() {
       {!session?.user?.id ? (
         <section className="mt-8 rounded-lg border border-[var(--border)] bg-white p-6">
           <p className="text-[var(--muted-foreground)]">上传前需要先使用 GitHub 登录。</p>
-          <a
+          <Link
             className="mt-4 inline-flex min-h-[44px] items-center rounded-md bg-[var(--accent)] px-6 py-3 text-sm font-medium tracking-[0.05em] text-white transition-all duration-200 hover:bg-[var(--accent-secondary)]"
             href="/api/auth/signin?callbackUrl=/skills/submit"
           >
             使用 GitHub 登录
-          </a>
+          </Link>
         </section>
       ) : (
         <>
