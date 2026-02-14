@@ -72,7 +72,7 @@ export default function Home() {
           backgroundSize: "20px 20px",
         }}
       />
-      <div className="pointer-events-none absolute left-1/2 top-20 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-[color:var(--accent)]/5 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-20 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-[var(--accent)] opacity-10 blur-3xl" />
 
       <header className="relative mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6 sm:px-10">
         <p className="headline-serif text-2xl text-[var(--foreground)]">Tactus</p>
@@ -168,7 +168,7 @@ export default function Home() {
           <div className="grid gap-6 md:grid-cols-2">
             {features.map((feature) => (
               <article
-                className="rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white p-6 shadow-[0_1px_2px_rgba(26,26,26,0.04)] transition-all duration-200 hover:bg-[var(--muted)]/40 hover:shadow-[0_4px_12px_rgba(26,26,26,0.06)]"
+                className="rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white p-6 shadow-[0_1px_2px_rgba(26,26,26,0.04)] transition-all duration-200 hover:bg-[var(--muted)] hover:shadow-[0_4px_12px_rgba(26,26,26,0.06)]"
                 key={feature.title}
               >
                 <p className="mb-3 text-xl">{feature.icon}</p>
@@ -207,8 +207,9 @@ export default function Home() {
           </div>
 
           <aside
-            className="rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-[color:var(--accent)]/5 p-6"
+            className="rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] p-6"
             id="quickstart"
+            style={{ backgroundColor: "rgb(184 134 11 / 0.06)" }}
           >
             <p className="small-caps mb-2 text-[var(--accent)]">Quick Start</p>
             <h3 className="headline-serif text-3xl text-[var(--foreground)]">安装只需 4 步</h3>
