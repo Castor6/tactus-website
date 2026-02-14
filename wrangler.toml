@@ -6,3 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 binding = "DB"
 database_name = "tactus-skills"
 database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "SKILLS_BUCKET"
+bucket_name = "tactus-skills"
