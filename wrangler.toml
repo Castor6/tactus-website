@@ -15,3 +15,15 @@ database_id = "82987a5a-6344-4fd0-8bf6-8e4482096887"
 [[r2_buckets]]
 binding = "SKILLS_BUCKET"
 bucket_name = "tactus-skills"
+
+[env.preview.vars]
+ENVIRONMENT = "preview"
+
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "tactus-skills"
+database_id = "82987a5a-6344-4fd0-8bf6-8e4482096887"
+
+[[env.preview.r2_buckets]]
+binding = "SKILLS_BUCKET"
+bucket_name = "tactus-skills"
