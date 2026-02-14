@@ -6,8 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "cf:build": "npx @opennextjs/cloudflare build",
+    "cf:pages:prepare": "node scripts/prepare-pages-deploy.mjs",
+    "cf:pages:deploy": "npm run cf:build && npm run cf:pages:prepare && npx wrangler pages deploy",
     "cf:preview": "npx wrangler dev",
-    "cf:deploy": "npx wrangler deploy",
+    "cf:deploy": "npm run cf:pages:deploy",
     "start": "next start",
     "lint": "eslint"
   },

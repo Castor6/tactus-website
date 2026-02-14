@@ -17,6 +17,8 @@
 /.next/
 /out/
 /.open-next/
+/.cloudflare/
+/.cf-pages-*/
 
 # production
 /build
