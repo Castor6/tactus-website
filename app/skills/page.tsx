@@ -1,25 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
-import { mockSkills } from "./data";
+import type { Skill } from "@/lib/db";
+import { fetchInternalApi } from "@/lib/internal-api";
 
 type SearchParams = Promise<{
   q?: string;
 }>;
 
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(date));
+}
+
 export default async function SkillsPage(props: {
   searchParams: SearchParams;
 }) {
   const searchParams = await props.searchParams;
-  const keyword = searchParams.q?.trim().toLowerCase() ?? "";
+  const keyword = searchParams.q?.trim() ?? "";
 
-  const approvedSkills = mockSkills.filter((skill) => skill.status === "approved");
-  const filteredSkills = keyword
-    ? approvedSkills.filter(
-        (skill) =>
-          skill.name.toLowerCase().includes(keyword) ||
-          skill.description.toLowerCase().includes(keyword),
-      )
-    : approvedSkills;
+  const queryString = keyword ? `?q=${encodeURIComponent(keyword)}` : "";
+  const { skills } = await fetchInternalApi<{ skills: Skill[] }>(`/api/skills${queryString}`);
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14 sm:px-10">
@@ -30,9 +33,7 @@ export default async function SkillsPage(props: {
       </div>
 
       <h1 className="headline-serif text-4xl text-[var(--foreground)] sm:text-5xl">Skills 市场</h1>
-      <p className="mt-4 max-w-3xl text-[var(--muted-foreground)]">
-        无需登录即可浏览和下载已审核通过的 skills。后续将接入 D1 + R2 数据源。
-      </p>
+      <p className="mt-4 max-w-3xl text-[var(--muted-foreground)]">无需登录即可浏览和下载已审核通过的 skills。</p>
 
       <form className="mt-8 flex flex-col gap-4 sm:flex-row" method="get">
         <input
@@ -51,7 +52,7 @@ export default async function SkillsPage(props: {
       </form>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
-        {filteredSkills.map((skill) => (
+        {skills.map((skill) => (
           <article
             className="rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white p-6 shadow-[0_1px_2px_rgba(26,26,26,0.04)]"
             key={skill.id}
@@ -65,7 +66,7 @@ export default async function SkillsPage(props: {
                   alt={`${skill.authorName} avatar`}
                   className="h-8 w-8 rounded-full border border-[var(--border)] object-cover"
                   height={32}
-                  src={skill.authorAvatar}
+                  src={skill.authorAvatar || "/images/show-result.png"}
                   width={32}
                 />
                 <span>{skill.authorName}</span>
@@ -74,7 +75,7 @@ export default async function SkillsPage(props: {
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <span className="small-caps text-[var(--muted-foreground)]">{skill.createdAt}</span>
+              <span className="small-caps text-[var(--muted-foreground)]">{formatDate(skill.createdAt)}</span>
               <Link
                 className="small-caps text-[var(--accent)] underline decoration-[var(--accent)]"
                 href={`/skills/${skill.id}`}
@@ -86,7 +87,7 @@ export default async function SkillsPage(props: {
         ))}
       </div>
 
-      {filteredSkills.length === 0 ? (
+      {skills.length === 0 ? (
         <p className="mt-10 rounded-md border border-[var(--border)] bg-white p-6 text-[var(--muted-foreground)]">
           未找到匹配结果，请尝试其他关键词。
         </p>

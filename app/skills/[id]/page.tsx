@@ -1,19 +1,32 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { mockSkills } from "../data";
+import type { Skill } from "@/lib/db";
+import { fetchInternalApi } from "@/lib/internal-api";
+import { DownloadButton } from "./download-button";
 
 type Params = Promise<{
   id: string;
 }>;
 
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(date));
+}
+
 export default async function SkillDetailPage(props: {
   params: Params;
 }) {
   const params = await props.params;
-  const skill = mockSkills.find((item) => item.id === params.id);
 
-  if (!skill) {
+  let skill: Skill;
+  try {
+    const payload = await fetchInternalApi<{ skill: Skill }>(`/api/skills/${params.id}`);
+    skill = payload.skill;
+  } catch {
     notFound();
   }
 
@@ -33,22 +46,17 @@ export default async function SkillDetailPage(props: {
               alt={`${skill.authorName} avatar`}
               className="h-9 w-9 rounded-full border border-[var(--border)] object-cover"
               height={36}
-              src={skill.authorAvatar}
+              src={skill.authorAvatar || "/images/show-result.png"}
               width={36}
             />
             <span>{skill.authorName}</span>
           </div>
           <span>{skill.downloads.toLocaleString()} 次下载</span>
-          <span>上传时间: {skill.createdAt}</span>
+          <span>上传时间: {formatDate(skill.createdAt)}</span>
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <button
-            className="min-h-[44px] rounded-md bg-[var(--accent)] px-6 py-3 text-sm font-medium tracking-[0.05em] text-white transition-all duration-200 hover:bg-[var(--accent-secondary)]"
-            type="button"
-          >
-            下载 Skill（待接入 API）
-          </button>
+          <DownloadButton skillId={skill.id} />
           <Link
             className="min-h-[44px] rounded-md border border-[var(--foreground)] px-6 py-3 text-center text-sm font-medium tracking-[0.05em] text-[var(--foreground)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)]"
             href="/skills"
