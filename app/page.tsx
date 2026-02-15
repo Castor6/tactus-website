@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import UserMenu from "./user-menu";
 
@@ -116,14 +115,14 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mx-auto mt-6 w-full max-w-4xl rounded-lg border border-[var(--border)] bg-white p-3 shadow-[0_8px_24px_rgba(26,26,26,0.08)]">
-            <Image
-              alt="Tactus 对话和技能界面截图"
+          <div className="mx-auto mt-6 w-full max-w-4xl overflow-hidden rounded-lg border border-[var(--border)] bg-white p-3 shadow-[0_8px_24px_rgba(26,26,26,0.08)]">
+            <video
+              autoPlay
               className="h-auto w-full rounded-md border border-[var(--border)] object-cover"
-              height={768}
-              priority
-              src="/images/show-result.png"
-              width={1366}
+              loop
+              muted
+              playsInline
+              src="https://github.com/user-attachments/assets/c7737e7e-dd2e-4888-a030-db40b9731f1d"
             />
           </div>
 
