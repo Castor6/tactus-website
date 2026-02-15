@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import { getSkillById } from "@/lib/db";
 
-export const runtime = "edge";
-
 type RouteContext = {
   params: Promise<{ id: string }>;
 };

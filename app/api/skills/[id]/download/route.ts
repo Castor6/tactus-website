@@ -1,8 +1,6 @@
 import { getApprovedSkillById, incrementSkillDownloads } from "@/lib/db";
 import { getSignedDownloadUrl } from "@/lib/r2";
 
-export const runtime = "edge";
-
 type RouteContext = {
   params: Promise<{ id: string }>;
 };

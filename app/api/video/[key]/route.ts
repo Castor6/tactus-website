@@ -1,7 +1,5 @@
 import { getCloudflareEnv } from "@/lib/cloudflare";
 
-export const runtime = "edge";
-
 const CONTENT_TYPES: Record<string, string> = {
   ".mp4": "video/mp4",
   ".webm": "video/webm",

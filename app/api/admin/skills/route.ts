@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import { getSkillById, listPendingSkills, reviewSkill } from "@/lib/db";
 
-export const runtime = "edge";
-
 type ReviewSkillBody = {
   id?: unknown;
   status?: unknown;

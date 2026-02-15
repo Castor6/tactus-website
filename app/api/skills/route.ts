@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import { createSkill, listApprovedSkills } from "@/lib/db";
 
-export const runtime = "edge";
-
 type CreateSkillBody = {
   name?: unknown;
   description?: unknown;

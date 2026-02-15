@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import { createSkillFileKey, uploadZipToR2 } from "@/lib/r2";
 
-export const runtime = "edge";
-
 function isZipFile(file: File) {
   const name = file.name.toLowerCase();
   return name.endsWith(".zip") || file.type === "application/zip" || file.type === "application/x-zip-compressed";
