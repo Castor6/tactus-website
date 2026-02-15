@@ -89,14 +89,7 @@ export default function Home() {
       <main className="relative mx-auto flex w-full max-w-5xl flex-col gap-32 px-6 pb-32 pt-10 sm:px-10 sm:pt-20">
         {/* ── Hero ────────────────────────────────────────── */}
         <section className="flex flex-col gap-10">
-          <div className="mb-2 flex items-center gap-4">
-            <span className="section-rule" />
-            <span className="small-caps whitespace-nowrap text-[var(--accent)]">Browser AI Agent</span>
-            <span className="section-rule" />
-          </div>
-
           <div className="flex flex-col items-center text-center">
-            <p className="small-caps mb-6 text-[var(--muted-foreground)]">Browser AI Agent Extension</p>
             <h1 className="headline-serif max-w-3xl text-[2.5rem] leading-[1.1] text-[var(--foreground)] sm:text-7xl">
               首个支持 Agent Skills 的浏览器 AI 扩展
             </h1>
