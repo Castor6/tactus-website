@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Skill } from "@/lib/db";
-import { fetchInternalApi } from "@/lib/internal-api";
+import { listApprovedSkills } from "@/lib/db";
 
 type SearchParams = Promise<{
   q?: string;
@@ -20,9 +19,7 @@ export default async function SkillsPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const keyword = searchParams.q?.trim() ?? "";
-
-  const queryString = keyword ? `?q=${encodeURIComponent(keyword)}` : "";
-  const { skills } = await fetchInternalApi<{ skills: Skill[] }>(`/api/skills${queryString}`);
+  const skills = await listApprovedSkills(keyword || undefined);
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14 sm:px-10">

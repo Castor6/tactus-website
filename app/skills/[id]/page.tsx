@@ -1,8 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Skill } from "@/lib/db";
-import { fetchInternalApi } from "@/lib/internal-api";
+import { getApprovedSkillById } from "@/lib/db";
 import { DownloadButton } from "./download-button";
 
 type Params = Promise<{
@@ -22,11 +21,8 @@ export default async function SkillDetailPage(props: {
 }) {
   const params = await props.params;
 
-  let skill: Skill;
-  try {
-    const payload = await fetchInternalApi<{ skill: Skill }>(`/api/skills/${params.id}`);
-    skill = payload.skill;
-  } catch {
+  const skill = await getApprovedSkillById(params.id);
+  if (!skill) {
     notFound();
   }
 
