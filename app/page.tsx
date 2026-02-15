@@ -43,7 +43,7 @@ const installSteps = [
   "从 GitHub Releases 下载最新版 tactus.zip。",
   "将压缩包解压到固定目录。",
   "打开 Chrome 扩展管理页并启用开发者模式。",
-  "点击"加载未打包的扩展程序"，选择解压目录完成安装。",
+  "点击「加载未打包的扩展程序」，选择解压目录完成安装。",
 ];
 
 const skillTree = `my-skill/
