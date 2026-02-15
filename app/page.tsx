@@ -118,6 +118,7 @@ export default function Home() {
           <div className="mx-auto mt-6 w-full max-w-4xl overflow-hidden rounded-lg border border-[var(--border)] bg-white p-3 shadow-[0_8px_24px_rgba(26,26,26,0.08)]">
             <video
               autoPlay
+              controls
               className="h-auto w-full rounded-md border border-[var(--border)] object-cover"
               loop
               muted
