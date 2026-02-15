@@ -124,7 +124,7 @@ export default function Home() {
               muted
               playsInline
               poster="/images/video-poster.jpg"
-              src="https://github.com/user-attachments/assets/c7737e7e-dd2e-4888-a030-db40b9731f1d"
+              src="/api/video/demo-video.mp4"
             />
           </div>
 

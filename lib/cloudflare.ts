@@ -12,6 +12,14 @@ export type D1DatabaseBinding = {
   batch: <T = unknown>(statements: D1PreparedStatement[]) => Promise<T[]>;
 };
 
+export type R2Object = {
+  body: ReadableStream;
+  size: number;
+  httpMetadata?: { contentType?: string };
+  range?: { offset: number; length: number };
+  writeHttpMetadata: (headers: Headers) => void;
+};
+
 export type R2BucketBinding = {
   put: (
     key: string,
@@ -21,7 +29,11 @@ export type R2BucketBinding = {
       customMetadata?: Record<string, string>;
     },
   ) => Promise<unknown>;
-  get: (key: string) => Promise<unknown | null>;
+  get: (
+    key: string,
+    options?: { range?: { offset: number; length: number } },
+  ) => Promise<R2Object | null>;
+  head: (key: string) => Promise<Omit<R2Object, "body"> | null>;
 };
 
 export type CloudflareEnv = {
