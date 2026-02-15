@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Playfair_Display, Source_Sans_3 } from "next/font/google";
+import AuthSessionProvider from "./session-provider";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -35,7 +36,9 @@ export default function RootLayout({
       <body
         className={`${playfairDisplay.variable} ${sourceSans.variable} ${ibmPlexMono.variable} antialiased`}
       >
-        {children}
+        <AuthSessionProvider>
+          {children}
+        </AuthSessionProvider>
       </body>
     </html>
   );

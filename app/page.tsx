@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import UserMenu from "./user-menu";
 
 const features = [
   {
@@ -83,6 +84,7 @@ export default function Home() {
           >
             浏览 Skills
           </Link>
+          <UserMenu />
         </nav>
       </header>
 
