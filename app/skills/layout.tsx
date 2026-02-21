@@ -10,7 +10,7 @@ export default function SkillsLayout({ children }: { children: React.ReactNode }
         </Link>
         <nav className="flex items-center gap-6 text-sm text-[var(--muted-foreground)]">
           <Link className="transition-colors hover:text-[var(--accent)]" href="/skills">
-            Skills 市场
+            Skills 广场
           </Link>
           <Link className="transition-colors hover:text-[var(--accent)]" href="/skills/submit">
             上传 Skill

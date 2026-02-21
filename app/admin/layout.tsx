@@ -10,7 +10,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </Link>
         <nav className="flex items-center gap-6 text-sm text-[var(--muted-foreground)]">
           <Link className="transition-colors hover:text-[var(--accent)]" href="/skills">
-            Skills 市场
+            Skills 广场
           </Link>
           <UserMenu />
         </nav>

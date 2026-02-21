@@ -29,7 +29,7 @@ export default async function SkillsPage(props: {
         <span className="section-rule" />
       </div>
 
-      <h1 className="headline-serif text-4xl text-[var(--foreground)] sm:text-5xl">Skills 市场</h1>
+      <h1 className="headline-serif text-4xl text-[var(--foreground)] sm:text-5xl">Skills 广场</h1>
       <p className="mt-4 max-w-3xl text-[var(--muted-foreground)]">无需登录即可浏览和下载已审核通过的 skills。</p>
 
       <form className="mt-8 flex flex-col gap-4 sm:flex-row" method="get">

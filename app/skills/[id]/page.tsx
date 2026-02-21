@@ -34,7 +34,7 @@ export default async function SkillDetailPage(props: {
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14 sm:px-10">
       <Link className="small-caps text-[var(--accent)]" href="/skills">
-        返回 Skills 市场
+        返回 Skills 广场
       </Link>
 
       <section className="mt-6 rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white p-8 shadow-[0_1px_2px_rgba(26,26,26,0.04)]">
