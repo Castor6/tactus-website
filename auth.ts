@@ -24,18 +24,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID ?? "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
+      profile(profile) {
+        return {
+          id: String(profile.id),
+          name: (profile.name as string | null) ?? (profile.login as string),
+          email: profile.email as string | null,
+          image: profile.avatar_url as string,
+        };
+      },
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
       if (account?.provider === "github") {
         token.githubId =
           account.providerAccountId ??
           (profile && "id" in profile ? String((profile as { id?: string | number }).id ?? "") : undefined);
 
         if (profile) {
-          token.picture = (profile as { avatar_url?: string }).avatar_url ?? token.picture;
+          token.picture =
+            (profile as { avatar_url?: string }).avatar_url ??
+            user?.image ??
+            token.picture;
           token.name = profile.name ?? (profile as { login?: string }).login ?? token.name;
+        } else if (user?.image) {
+          token.picture = user.image;
         }
       }
 
