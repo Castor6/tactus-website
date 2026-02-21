@@ -47,7 +47,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = githubId;
         session.user.isAdmin = isAdminGithubId(githubId);
-        session.user.image = typeof token.picture === "string" ? token.picture : undefined;
+        session.user.image =
+          (typeof token.picture === "string" ? token.picture : undefined) ??
+          (githubId ? `https://avatars.githubusercontent.com/u/${githubId}?v=4` : undefined);
       }
 
       return session;
