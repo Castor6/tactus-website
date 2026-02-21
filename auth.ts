@@ -32,6 +32,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.githubId =
           account.providerAccountId ??
           (profile && "id" in profile ? String((profile as { id?: string | number }).id ?? "") : undefined);
+
+        if (profile) {
+          token.picture = (profile as { avatar_url?: string }).avatar_url ?? token.picture;
+          token.name = profile.name ?? (profile as { login?: string }).login ?? token.name;
+        }
       }
 
       return token;
@@ -42,6 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = githubId;
         session.user.isAdmin = isAdminGithubId(githubId);
+        session.user.image = typeof token.picture === "string" ? token.picture : undefined;
       }
 
       return session;
