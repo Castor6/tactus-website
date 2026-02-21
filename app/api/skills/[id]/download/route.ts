@@ -23,10 +23,15 @@ export async function GET(_request: Request, context: RouteContext) {
 
     await incrementSkillDownloads(id);
 
-    const filename = `${skill.name.replace(/[^a-zA-Z0-9-_]/g, "_")}.zip`;
+    const safeName = skill.name.replace(/[/\\:*?"<>|]/g, "_");
+    const filename = `${safeName}.zip`;
+    const encodedFilename = `${encodeURIComponent(safeName)}.zip`;
     const headers = new Headers();
     headers.set("Content-Type", file.contentType);
-    headers.set("Content-Disposition", `attachment; filename="${filename}"`);
+    headers.set(
+      "Content-Disposition",
+      `attachment; filename="${encodedFilename}"; filename*=UTF-8''${encodedFilename}`
+    );
     if (file.size) {
       headers.set("Content-Length", String(file.size));
     }
