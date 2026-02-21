@@ -34,6 +34,7 @@ export type R2BucketBinding = {
     options?: { range?: { offset: number; length: number } },
   ) => Promise<R2Object | null>;
   head: (key: string) => Promise<Omit<R2Object, "body"> | null>;
+  delete: (key: string) => Promise<void>;
 };
 
 export type CloudflareEnv = {

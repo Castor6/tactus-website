@@ -54,3 +54,8 @@ export async function getSkillFile(key: string) {
     contentType: object.httpMetadata?.contentType || "application/zip",
   };
 }
+
+export async function deleteSkillFile(key: string) {
+  const env = getCloudflareEnv();
+  await env.SKILLS_BUCKET.delete(key);
+}

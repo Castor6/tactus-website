@@ -14,6 +14,7 @@ export type Skill = {
   status: SkillStatus;
   downloads: number;
   createdAt: string;
+  updatedAt: string | null;
   reviewedAt: string | null;
 };
 
@@ -29,6 +30,7 @@ type SkillRow = {
   status: SkillStatus;
   downloads: number;
   created_at: string;
+  updated_at: string | null;
   reviewed_at: string | null;
 };
 
@@ -54,6 +56,7 @@ const SKILL_COLUMNS = [
   "status",
   "downloads",
   "created_at",
+  "updated_at",
   "reviewed_at",
 ].join(", ");
 
@@ -70,6 +73,7 @@ function mapSkillRow(row: SkillRow): Skill {
     status: row.status,
     downloads: row.downloads,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
     reviewedAt: row.reviewed_at,
   };
 }
@@ -127,7 +131,7 @@ export async function createSkill(input: CreateSkillInput) {
   const createdAt = new Date().toISOString();
 
   await env.DB.prepare(
-    "INSERT INTO skills (id, name, description, author_id, author_name, author_avatar, file_key, file_size, status, downloads, created_at, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, NULL)",
+    "INSERT INTO skills (id, name, description, author_id, author_name, author_avatar, file_key, file_size, status, downloads, created_at, updated_at, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, NULL, NULL)",
   )
     .bind(
       id,
@@ -173,6 +177,46 @@ export async function reviewSkill(id: string, status: Extract<SkillStatus, "appr
 
   await env.DB.prepare("UPDATE skills SET status = ?, reviewed_at = ? WHERE id = ?")
     .bind(status, reviewedAt, id)
+    .run();
+
+  return getSkillById(id);
+}
+
+export type UpdateSkillInput = {
+  name?: string;
+  description?: string;
+  fileKey?: string;
+  fileSize?: number | null;
+};
+
+export async function updateSkill(id: string, input: UpdateSkillInput) {
+  const env = getCloudflareEnv();
+  const updatedAt = new Date().toISOString();
+
+  const setClauses: string[] = ["updated_at = ?"];
+  const values: unknown[] = [updatedAt];
+
+  if (input.name !== undefined) {
+    setClauses.push("name = ?");
+    values.push(input.name);
+  }
+  if (input.description !== undefined) {
+    setClauses.push("description = ?");
+    values.push(input.description);
+  }
+  if (input.fileKey !== undefined) {
+    setClauses.push("file_key = ?");
+    values.push(input.fileKey);
+  }
+  if (input.fileSize !== undefined) {
+    setClauses.push("file_size = ?");
+    values.push(input.fileSize);
+  }
+
+  values.push(id);
+
+  await env.DB.prepare(`UPDATE skills SET ${setClauses.join(", ")} WHERE id = ?`)
+    .bind(...values)
     .run();
 
   return getSkillById(id);

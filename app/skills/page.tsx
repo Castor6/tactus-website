@@ -72,7 +72,9 @@ export default async function SkillsPage(props: {
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <span className="small-caps text-[var(--muted-foreground)]">{formatDate(skill.createdAt)}</span>
+              <span className="small-caps text-[var(--muted-foreground)]">
+                {skill.updatedAt ? `更新于 ${formatDate(skill.updatedAt)}` : formatDate(skill.createdAt)}
+              </span>
               <Link
                 className="small-caps text-[var(--accent)] underline decoration-[var(--accent)]"
                 href={`/skills/${skill.id}`}

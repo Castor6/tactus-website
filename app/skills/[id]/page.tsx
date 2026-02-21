@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { getApprovedSkillById } from "@/lib/db";
 import { DownloadButton } from "./download-button";
+import { UpdateSkillForm } from "./update-skill-form";
 
 type Params = Promise<{
   id: string;
@@ -25,6 +27,9 @@ export default async function SkillDetailPage(props: {
   if (!skill) {
     notFound();
   }
+
+  const session = await auth();
+  const isOwner = session?.user?.id === skill.authorId;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14 sm:px-10">
@@ -49,10 +54,20 @@ export default async function SkillDetailPage(props: {
           </div>
           <span>{skill.downloads.toLocaleString()} 次下载</span>
           <span>上传时间: {formatDate(skill.createdAt)}</span>
+          {skill.updatedAt ? (
+            <span>更新时间: {formatDate(skill.updatedAt)}</span>
+          ) : null}
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <DownloadButton skillId={skill.id} />
+          {isOwner ? (
+            <UpdateSkillForm
+              currentDescription={skill.description}
+              currentName={skill.name}
+              skillId={skill.id}
+            />
+          ) : null}
           <Link
             className="min-h-[44px] rounded-md border border-[var(--foreground)] px-6 py-3 text-center text-sm font-medium tracking-[0.05em] text-[var(--foreground)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)]"
             href="/skills"
