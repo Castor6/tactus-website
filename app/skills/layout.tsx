@@ -12,7 +12,7 @@ export default function SkillsLayout({ children }: { children: React.ReactNode }
           <Link className="transition-colors hover:text-[var(--accent)]" href="/skills">
             Skills 广场
           </Link>
-          <Link className="transition-colors hover:text-[var(--accent)]" href="/skills/submit">
+          <Link className="inline-flex items-center rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium tracking-[0.05em] text-white transition-all duration-200 hover:bg-[var(--accent-secondary)]" href="/skills/submit">
             上传 Skill
           </Link>
           <UserMenu />
