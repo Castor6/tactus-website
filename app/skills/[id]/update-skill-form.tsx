@@ -108,13 +108,6 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription }: Up
         >
           {isSubmitting ? "更新中..." : "确认更新"}
         </button>
-        <button
-          className="min-h-[44px] rounded-md border border-[var(--foreground)] px-6 py-3 text-sm font-medium tracking-[0.05em] text-[var(--foreground)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)]"
-          onClick={() => setIsOpen(false)}
-          type="button"
-        >
-          取消
-        </button>
       </div>
 
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
