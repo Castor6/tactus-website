@@ -50,6 +50,7 @@ export default function UserMenu() {
             className="h-7 w-7 rounded-full border border-[var(--border)] object-cover"
             height={28}
             src={session.user.image}
+            unoptimized
             width={28}
           />
         ) : (

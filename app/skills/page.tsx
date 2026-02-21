@@ -64,6 +64,7 @@ export default async function SkillsPage(props: {
                   className="h-8 w-8 rounded-full border border-[var(--border)] object-cover"
                   height={32}
                   src={skill.authorAvatar || "/images/show-result.png"}
+                  unoptimized
                   width={32}
                 />
                 <span>{skill.authorName}</span>
