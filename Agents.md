@@ -18,6 +18,14 @@
 ## 部署上线
 
 当要求部署上线时：
-1. 将 `openclaw` 分支合并到 `main` 分支
-2. 推送 `main` 分支
-3. 用 wrangler CLI 部署到生产环境 https://tactus.cc.cd/
+1. 将 `openclaw` 分支合并到 `main` 分支并推送
+2. 执行生产环境部署
+   ```bash
+   git checkout main
+   git merge openclaw
+   git push origin main
+   npm run cf:build
+   npm run cf:pages:prepare
+   npx wrangler pages deploy --project-name tactus-website --branch main --commit-dirty=true
+   ```
+3. 生产地址：https://tactus.cc.cd/
