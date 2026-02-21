@@ -68,12 +68,6 @@ export default async function SkillDetailPage(props: {
               skillId={skill.id}
             />
           ) : null}
-          <Link
-            className="min-h-[44px] rounded-md border border-[var(--foreground)] px-6 py-3 text-center text-sm font-medium tracking-[0.05em] text-[var(--foreground)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)]"
-            href="/skills"
-          >
-            浏览更多 Skills
-          </Link>
         </div>
       </section>
     </main>
