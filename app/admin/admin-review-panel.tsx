@@ -81,6 +81,12 @@ export function AdminReviewPanel() {
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <span className="small-caps text-[var(--muted-foreground)]">提交者: {skill.authorName}</span>
             <div className="flex gap-3">
+              <a
+                className="inline-flex min-h-[44px] items-center rounded-md border border-[var(--accent)] px-4 py-2 text-xs tracking-[0.08em] text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-white"
+                href={`/api/skills/${skill.id}/download`}
+              >
+                下载
+              </a>
               <button
                 className="min-h-[44px] rounded-md bg-[var(--accent)] px-4 py-2 text-xs tracking-[0.08em] text-white disabled:cursor-not-allowed disabled:opacity-70"
                 disabled={updatingId === skill.id}

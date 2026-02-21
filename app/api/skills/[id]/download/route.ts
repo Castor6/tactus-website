@@ -1,4 +1,5 @@
-import { getApprovedSkillById, incrementSkillDownloads } from "@/lib/db";
+import { auth } from "@/auth";
+import { getApprovedSkillById, getSkillById, incrementSkillDownloads } from "@/lib/db";
 import { getSkillFile } from "@/lib/r2";
 
 type RouteContext = {
@@ -9,7 +10,16 @@ export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
 
   try {
-    const skill = await getApprovedSkillById(id);
+    let skill = await getApprovedSkillById(id);
+    let isAdminDownload = false;
+
+    if (!skill) {
+      const session = await auth();
+      if (session?.user?.isAdmin) {
+        skill = await getSkillById(id);
+        isAdminDownload = true;
+      }
+    }
 
     if (!skill) {
       return Response.json({ error: "Skill not found" }, { status: 404 });
@@ -21,10 +31,11 @@ export async function GET(_request: Request, context: RouteContext) {
       return Response.json({ error: "File not found" }, { status: 404 });
     }
 
-    await incrementSkillDownloads(id);
+    if (!isAdminDownload) {
+      await incrementSkillDownloads(id);
+    }
 
     const safeName = skill.name.replace(/[/\\:*?"<>|]/g, "_");
-    const filename = `${safeName}.zip`;
     const encodedFilename = `${encodeURIComponent(safeName)}.zip`;
     const headers = new Headers();
     headers.set("Content-Type", file.contentType);
