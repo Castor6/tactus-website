@@ -1,4 +1,3 @@
-import { AwsClient } from "aws4fetch";
 import { getCloudflareEnv } from "@/lib/cloudflare";
 
 type UploadZipInput = {
@@ -6,24 +5,6 @@ type UploadZipInput = {
   file: File;
   uploadedBy: string;
 };
-
-function getPresignClient() {
-  const env = getCloudflareEnv();
-
-  return new AwsClient({
-    accessKeyId: env.R2_ACCESS_KEY_ID,
-    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-    service: "s3",
-    region: "auto",
-  });
-}
-
-function encodeObjectKey(key: string) {
-  return key
-    .split("/")
-    .map((segment) => encodeURIComponent(segment))
-    .join("/");
-}
 
 export function createSkillFileKey(filename: string, userId: string) {
   const sanitizedName = filename
@@ -59,20 +40,17 @@ export async function uploadZipToR2(input: UploadZipInput) {
   };
 }
 
-export async function getSignedDownloadUrl(key: string, expiresInSeconds = 300) {
+export async function getSkillFile(key: string) {
   const env = getCloudflareEnv();
-  const presignClient = getPresignClient();
+  const object = await env.SKILLS_BUCKET.get(key);
 
-  const url = new URL(
-    `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${env.R2_BUCKET_NAME}/${encodeObjectKey(key)}`,
-  );
-  url.searchParams.set("X-Amz-Expires", String(expiresInSeconds));
+  if (!object) {
+    return null;
+  }
 
-  const signedRequest = await presignClient.sign(new Request(url.toString(), { method: "GET" }), {
-    aws: {
-      signQuery: true,
-    },
-  });
-
-  return signedRequest.url.toString();
+  return {
+    body: object.body,
+    size: object.size,
+    contentType: object.httpMetadata?.contentType || "application/zip",
+  };
 }
