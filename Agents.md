@@ -7,7 +7,7 @@
 1. **开发分支**: 使用 `openclaw` 分支进行开发
 2. **提交规范**: 每完成一个需求就 `git commit`（写有意义的 commit message）
 3. **推送**: 所有需求完成后 `git push origin openclaw`
-4. **预览环境**: 推送后自动部署到 https://tactus-website.pages.dev/
+4. **预览环境**: 推送后自动部署到 https://openclaw.tactus-website.pages.dev/
 
 ## 部署上线
 
