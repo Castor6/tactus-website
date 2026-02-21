@@ -13,7 +13,6 @@
    npm run cf:pages:prepare
    npx wrangler pages deploy --project-name tactus-website --branch openclaw --commit-dirty=true
    ```
-   或者直接用一条命令：`npm run cf:pages:deploy`（但注意这个会用默认 branch）
    预览地址：https://openclaw.tactus-website.pages.dev/ （**唯一的预览地址，不要创建其他 alias**）
 
 ## 部署上线
