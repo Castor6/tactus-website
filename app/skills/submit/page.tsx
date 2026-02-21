@@ -28,7 +28,7 @@ export default async function SubmitSkillPage() {
       ) : (
         <>
           <p className="mt-4 text-[var(--muted-foreground)]">
-            当前登录用户：{session.user.name ?? "GitHub User"}。提交后状态默认为 pending。
+            当前登录用户：{session.user.name ?? "GitHub User"}。提交后待管理员审核。
           </p>
           <SubmitForm />
           <Link className="small-caps mt-6 inline-block text-[var(--accent)]" href="/api/auth/signout?callbackUrl=/">

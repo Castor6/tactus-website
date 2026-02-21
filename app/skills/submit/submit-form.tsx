@@ -67,7 +67,7 @@ export function SubmitForm() {
         throw new Error(createPayload.error || "创建 skill 失败");
       }
 
-      setSuccess("提交成功，状态为 pending，请等待管理员审核。");
+      setSuccess("提交成功，请等待管理员审核。");
       setName("");
       setDescription("");
       setFile(null);
