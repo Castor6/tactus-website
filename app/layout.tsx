@@ -24,6 +24,14 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Tactus - Agent Skills Browser AI Agent",
   description: "首个支持 Agent Skills 的浏览器 AI Agent 扩展",
+  icons: {
+    icon: [
+      { url: "/icon/16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon/32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon/48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon/128.png", sizes: "128x128", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
