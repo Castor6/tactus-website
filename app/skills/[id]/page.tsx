@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getApprovedSkillById } from "@/lib/db";
-import { DownloadButton } from "./download-button";
-import { UpdateSkillForm } from "./update-skill-form";
+import { SkillActions } from "./skill-actions";
 
 type Params = Promise<{
   id: string;
@@ -59,16 +58,12 @@ export default async function SkillDetailPage(props: {
           ) : null}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <DownloadButton skillId={skill.id} />
-          {isOwner ? (
-            <UpdateSkillForm
-              currentDescription={skill.description}
-              currentName={skill.name}
-              skillId={skill.id}
-            />
-          ) : null}
-        </div>
+        <SkillActions
+          currentDescription={skill.description}
+          currentName={skill.name}
+          isOwner={isOwner}
+          skillId={skill.id}
+        />
       </section>
     </main>
   );

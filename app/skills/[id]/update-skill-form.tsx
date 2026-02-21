@@ -6,9 +6,10 @@ type UpdateFormProps = {
   skillId: string;
   currentName: string;
   currentDescription: string;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
-export function UpdateSkillForm({ skillId, currentName, currentDescription }: UpdateFormProps) {
+export function UpdateSkillForm({ skillId, currentName, currentDescription, onOpenChange }: UpdateFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(currentName);
   const [description, setDescription] = useState(currentDescription);
@@ -47,6 +48,8 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription }: Up
 
       setSuccess("更新成功！");
       setFile(null);
+      setIsOpen(false);
+      onOpenChange?.(false);
       setTimeout(() => window.location.reload(), 1000);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "更新失败");
@@ -59,7 +62,10 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription }: Up
     return (
       <button
         className="min-h-[44px] rounded-md border border-[var(--accent)] px-6 py-3 text-center text-sm font-medium tracking-[0.05em] text-[var(--accent)] transition-all duration-200 hover:bg-[var(--accent)] hover:text-white"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+          onOpenChange?.(true);
+        }}
         type="button"
       >
         更新 Skill
@@ -107,6 +113,22 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription }: Up
           type="submit"
         >
           {isSubmitting ? "更新中..." : "确认更新"}
+        </button>
+        <button
+          className="min-h-[44px] rounded-md border border-[var(--border)] px-6 py-3 text-sm font-medium tracking-[0.05em] text-[var(--muted-foreground)] transition-all duration-200 hover:bg-[var(--muted)]"
+          disabled={isSubmitting}
+          onClick={() => {
+            setIsOpen(false);
+            onOpenChange?.(false);
+            setName(currentName);
+            setDescription(currentDescription);
+            setFile(null);
+            setError(null);
+            setSuccess(null);
+          }}
+          type="button"
+        >
+          取消
         </button>
       </div>
 
