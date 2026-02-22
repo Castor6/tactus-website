@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getApprovedSkillById } from "@/lib/db";
+import { ImageCarousel } from "./image-carousel";
 import { SkillActions } from "./skill-actions";
 
 type Params = Promise<{
@@ -38,27 +39,10 @@ export default async function SkillDetailPage(props: {
 
       <section className="mt-6 overflow-hidden rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white shadow-[0_1px_2px_rgba(26,26,26,0.04)]">
         {skill.imageKeys.length > 0 ? (
-          skill.imageKeys.length === 1 ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              alt={`${skill.name} cover`}
-              className="h-56 w-full object-cover sm:h-72"
-              src={`/api/skills/${skill.id}/image`}
-            />
-          ) : (
-            <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
-              {skill.imageKeys.map((_, index) => (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  alt={`${skill.name} image ${index + 1}`}
-                  className={`w-full object-cover ${index === 0 ? "col-span-2 h-56 sm:h-72" : "h-36 sm:h-48"}`}
-                  key={index}
-                  loading={index === 0 ? undefined : "lazy"}
-                  src={`/api/skills/${skill.id}/image?index=${index}`}
-                />
-              ))}
-            </div>
-          )
+          <ImageCarousel
+            alt={skill.name}
+            imageUrls={skill.imageKeys.map((_, i) => `/api/skills/${skill.id}/image?index=${i}`)}
+          />
         ) : null}
         <div className="p-8">
         <h1 className="headline-serif text-4xl text-[var(--foreground)]">{skill.name}</h1>
