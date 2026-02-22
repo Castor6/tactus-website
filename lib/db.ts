@@ -11,6 +11,7 @@ export type Skill = {
   authorAvatar: string | null;
   fileKey: string;
   fileSize: number | null;
+  imageKey: string | null;
   status: SkillStatus;
   downloads: number;
   createdAt: string;
@@ -27,6 +28,7 @@ type SkillRow = {
   author_avatar: string | null;
   file_key: string;
   file_size: number | null;
+  image_key: string | null;
   status: SkillStatus;
   downloads: number;
   created_at: string;
@@ -42,6 +44,7 @@ export type CreateSkillInput = {
   authorAvatar?: string | null;
   fileKey: string;
   fileSize?: number | null;
+  imageKey?: string | null;
 };
 
 const SKILL_COLUMNS = [
@@ -53,6 +56,7 @@ const SKILL_COLUMNS = [
   "author_avatar",
   "file_key",
   "file_size",
+  "image_key",
   "status",
   "downloads",
   "created_at",
@@ -70,6 +74,7 @@ const FALLBACK_SKILL_COLUMNS = [
   "author_avatar",
   "file_key",
   "file_size",
+  "NULL as image_key",
   "status",
   "downloads",
   "created_at",
@@ -95,6 +100,7 @@ function mapSkillRow(row: SkillRow): Skill {
     authorAvatar: row.author_avatar,
     fileKey: row.file_key,
     fileSize: row.file_size,
+    imageKey: row.image_key,
     status: row.status,
     downloads: row.downloads,
     createdAt: row.created_at,
@@ -150,7 +156,7 @@ export async function createSkill(input: CreateSkillInput) {
 
   try {
     await env.DB.prepare(
-      "INSERT INTO skills (id, name, description, author_id, author_name, author_avatar, file_key, file_size, status, downloads, created_at, updated_at, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, NULL, NULL)",
+      "INSERT INTO skills (id, name, description, author_id, author_name, author_avatar, file_key, file_size, image_key, status, downloads, created_at, updated_at, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, NULL, NULL)",
     )
       .bind(
         id,
@@ -161,11 +167,12 @@ export async function createSkill(input: CreateSkillInput) {
         input.authorAvatar ?? null,
         input.fileKey,
         input.fileSize ?? null,
+        input.imageKey ?? null,
         createdAt,
       )
       .run();
   } catch {
-    // Fallback: INSERT without updated_at column if it doesn't exist yet
+    // Fallback: INSERT without updated_at/image_key columns if they don't exist yet
     await env.DB.prepare(
       "INSERT INTO skills (id, name, description, author_id, author_name, author_avatar, file_key, file_size, status, downloads, created_at, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, NULL)",
     )
@@ -298,6 +305,7 @@ export type UpdateSkillInput = {
   description?: string;
   fileKey?: string;
   fileSize?: number | null;
+  imageKey?: string | null;
 };
 
 export async function updateSkill(id: string, input: UpdateSkillInput) {
@@ -322,6 +330,10 @@ export async function updateSkill(id: string, input: UpdateSkillInput) {
   if (input.fileSize !== undefined) {
     setClauses.push("file_size = ?");
     values.push(input.fileSize);
+  }
+  if (input.imageKey !== undefined) {
+    setClauses.push("image_key = ?");
+    values.push(input.imageKey);
   }
 
   values.push(id);

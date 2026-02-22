@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS skills (
   author_avatar TEXT,
   file_key TEXT NOT NULL,
   file_size INTEGER,
+  image_key TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   downloads INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
