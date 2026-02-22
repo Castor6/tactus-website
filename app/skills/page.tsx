@@ -65,7 +65,7 @@ export default async function SkillsPage(props: {
             className="overflow-hidden rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white shadow-[0_1px_2px_rgba(26,26,26,0.04)]"
             key={skill.id}
           >
-            {skill.imageKey ? (
+            {skill.imageKeys.length > 0 ? (
               <Link href={`/skills/${skill.id}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

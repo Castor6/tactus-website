@@ -9,10 +9,11 @@ type SkillActionsProps = {
   isOwner: boolean;
   currentName: string;
   currentDescription: string;
-  currentImageUrl: string | null;
+  currentImageUrls: string[];
+  currentImageKeys: string[];
 };
 
-export function SkillActions({ skillId, isOwner, currentName, currentDescription, currentImageUrl }: SkillActionsProps) {
+export function SkillActions({ skillId, isOwner, currentName, currentDescription, currentImageUrls, currentImageKeys }: SkillActionsProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
@@ -21,7 +22,8 @@ export function SkillActions({ skillId, isOwner, currentName, currentDescription
       {isOwner ? (
         <UpdateSkillForm
           currentDescription={currentDescription}
-          currentImageUrl={currentImageUrl}
+          currentImageKeys={currentImageKeys}
+          currentImageUrls={currentImageUrls}
           currentName={currentName}
           onOpenChange={setIsEditing}
           skillId={skillId}
