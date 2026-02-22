@@ -1,22 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
 
 type UpdateFormProps = {
   skillId: string;
   currentName: string;
   currentDescription: string;
+  currentImageUrl: string | null;
   onOpenChange?: (isOpen: boolean) => void;
 };
 
-export function UpdateSkillForm({ skillId, currentName, currentDescription, onOpenChange }: UpdateFormProps) {
+export function UpdateSkillForm({ skillId, currentName, currentDescription, currentImageUrl, onOpenChange }: UpdateFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(currentName);
   const [description, setDescription] = useState(currentDescription);
   const [file, setFile] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(currentImageUrl);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  function handleImageChange(file: File | null) {
+    if (!file) {
+      setImage(null);
+      setImagePreview(currentImageUrl);
+      return;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError("仅支持 JPEG、PNG、WebP、GIF 格式的图片");
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError("图片大小不能超过 2MB");
+      return;
+    }
+
+    setError(null);
+    setImage(file);
+    const url = URL.createObjectURL(file);
+    setImagePreview(url);
+  }
+
+  function clearImage() {
+    setImage(null);
+    setImagePreview(currentImageUrl);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,6 +73,9 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, onOp
       if (file) {
         formData.append("file", file);
       }
+      if (image) {
+        formData.append("image", image);
+      }
 
       const response = await fetch(`/api/skills/${skillId}`, {
         method: "PUT",
@@ -48,6 +89,7 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, onOp
 
       setSuccess("更新成功！");
       setFile(null);
+      clearImage();
       setIsOpen(false);
       onOpenChange?.(false);
       setTimeout(() => window.location.reload(), 1000);
@@ -97,6 +139,35 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, onOp
       </label>
 
       <label className="grid gap-2">
+        <span className="small-caps text-[var(--muted-foreground)]">替换封面图片（可选，最大 2MB）</span>
+        <input
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="min-h-[44px] rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm"
+          onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
+          ref={imageInputRef}
+          type="file"
+        />
+        {imagePreview ? (
+          <div className="relative mt-2 inline-block">
+            <img
+              alt="封面预览"
+              className="h-32 w-auto rounded-md border border-[var(--border)] object-cover"
+              src={imagePreview}
+            />
+            {image ? (
+              <button
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600"
+                onClick={clearImage}
+                type="button"
+              >
+                ✕
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </label>
+
+      <label className="grid gap-2">
         <span className="small-caps text-[var(--muted-foreground)]">替换 Zip 压缩包（可选）</span>
         <input
           accept=".zip,application/zip,application/x-zip-compressed"
@@ -123,6 +194,7 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, onOp
             setName(currentName);
             setDescription(currentDescription);
             setFile(null);
+            clearImage();
             setError(null);
             setSuccess(null);
           }}

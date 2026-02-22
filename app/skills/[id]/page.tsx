@@ -61,6 +61,7 @@ export default async function SkillDetailPage(props: {
 
         <SkillActions
           currentDescription={skill.description}
+          currentImageUrl={skill.imageKey ? `/api/skills/${skill.id}/image` : null}
           currentName={skill.name}
           isOwner={isOwner}
           skillId={skill.id}
