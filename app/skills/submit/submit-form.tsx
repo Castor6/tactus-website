@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_IMAGES = 5;
 
 type UploadPayload = {
   key: string;
@@ -22,39 +23,65 @@ export function SubmitForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  function handleImageChange(file: File | null) {
-    if (!file) {
-      setImage(null);
-      setImagePreview(null);
+  function handleImagesChange(files: FileList | null) {
+    if (!files || files.length === 0) return;
+
+    const remaining = MAX_IMAGES - images.length;
+    if (remaining <= 0) {
+      setError(`最多上传 ${MAX_IMAGES} 张图片`);
       return;
     }
 
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError("仅支持 JPEG、PNG、WebP、GIF 格式的图片");
-      return;
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (let i = 0; i < Math.min(files.length, remaining); i++) {
+      const f = files[i];
+      if (!ALLOWED_IMAGE_TYPES.includes(f.type)) {
+        setError("仅支持 JPEG、PNG、WebP、GIF 格式的图片");
+        return;
+      }
+      if (f.size > MAX_IMAGE_SIZE) {
+        setError("图片大小不能超过 2MB");
+        return;
+      }
+      newFiles.push(f);
+      newPreviews.push(URL.createObjectURL(f));
     }
 
-    if (file.size > MAX_IMAGE_SIZE) {
-      setError("图片大小不能超过 2MB");
-      return;
+    if (files.length > remaining) {
+      setError(`已选择前 ${remaining} 张，最多上传 ${MAX_IMAGES} 张图片`);
+    } else {
+      setError(null);
     }
 
-    setError(null);
-    setImage(file);
-    const url = URL.createObjectURL(file);
-    setImagePreview(url);
+    setImages((prev) => [...prev, ...newFiles]);
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
   }
 
-  function clearImage() {
-    setImage(null);
-    setImagePreview(null);
+  function removeImage(index: number) {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
+
+  function clearAllImages() {
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setImages([]);
+    setImagePreviews([]);
     if (imageInputRef.current) {
       imageInputRef.current.value = "";
     }
@@ -87,11 +114,11 @@ export function SubmitForm() {
         throw new Error(uploadPayload.error || "上传失败");
       }
 
-      // Upload image (optional)
-      let imageKey: string | null = null;
-      if (image) {
+      // Upload images (optional)
+      const imageKeys: string[] = [];
+      for (const img of images) {
         const imageForm = new FormData();
-        imageForm.append("image", image);
+        imageForm.append("image", img);
 
         const imageResponse = await fetch("/api/upload-image", {
           method: "POST",
@@ -102,7 +129,7 @@ export function SubmitForm() {
         if (!imageResponse.ok) {
           throw new Error(imagePayload.error || "图片上传失败");
         }
-        imageKey = imagePayload.key;
+        imageKeys.push(imagePayload.key);
       }
 
       // Create skill record
@@ -116,7 +143,7 @@ export function SubmitForm() {
           description: description.trim(),
           fileKey: uploadPayload.key,
           fileSize: uploadPayload.size,
-          imageKey,
+          imageKeys,
         }),
       });
       const createPayload = (await createResponse.json()) as SkillPayload & { error?: string };
@@ -129,7 +156,7 @@ export function SubmitForm() {
       setName("");
       setDescription("");
       setFile(null);
-      clearImage();
+      clearAllImages();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "提交失败");
     } finally {
@@ -160,32 +187,44 @@ export function SubmitForm() {
         />
       </label>
 
-      <label className="grid gap-2">
-        <span className="small-caps text-[var(--muted-foreground)]">封面图片（可选，最大 2MB）</span>
-        <input
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="min-h-[44px] rounded-md border border-[var(--border)] px-4 py-2 text-sm"
-          onChange={(event) => handleImageChange(event.target.files?.[0] ?? null)}
-          ref={imageInputRef}
-          type="file"
-        />
-        {imagePreview ? (
-          <div className="relative mt-2 inline-block">
-            <img
-              alt="封面预览"
-              className="h-40 w-auto rounded-md border border-[var(--border)] object-cover"
-              src={imagePreview}
-            />
-            <button
-              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600"
-              onClick={clearImage}
-              type="button"
-            >
-              ✕
-            </button>
+      <div className="grid gap-2">
+        <span className="small-caps text-[var(--muted-foreground)]">
+          封面图片（可选，最多 {MAX_IMAGES} 张，每张最大 2MB）
+        </span>
+        <span className="text-xs text-[var(--muted-foreground)]">
+          已选择 {images.length}/{MAX_IMAGES} 张
+        </span>
+        {images.length < MAX_IMAGES ? (
+          <input
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="min-h-[44px] rounded-md border border-[var(--border)] px-4 py-2 text-sm"
+            multiple
+            onChange={(event) => handleImagesChange(event.target.files)}
+            ref={imageInputRef}
+            type="file"
+          />
+        ) : null}
+        {imagePreviews.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-3">
+            {imagePreviews.map((url, index) => (
+              <div className="relative" key={url}>
+                <img
+                  alt={`封面预览 ${index + 1}`}
+                  className="h-28 w-28 rounded-md border border-[var(--border)] object-cover"
+                  src={url}
+                />
+                <button
+                  className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600"
+                  onClick={() => removeImage(index)}
+                  type="button"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
           </div>
         ) : null}
-      </label>
+      </div>
 
       <label className="grid gap-2">
         <span className="small-caps text-[var(--muted-foreground)]">Zip 压缩包</span>
