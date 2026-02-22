@@ -76,12 +76,25 @@ export default async function SkillsPage(props: {
               <span className="small-caps text-[var(--muted-foreground)]">
                 {skill.updatedAt ? `更新于 ${formatDate(skill.updatedAt)}` : formatDate(skill.createdAt)}
               </span>
-              <Link
-                className="small-caps text-[var(--accent)] underline decoration-[var(--accent)]"
-                href={`/skills/${skill.id}`}
-              >
-                查看详情
-              </Link>
+              <div className="flex items-center gap-4">
+                <a
+                  className="small-caps inline-flex items-center gap-1 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-medium tracking-[0.05em] text-white transition-all duration-200 hover:bg-[var(--accent-secondary)]"
+                  href={`/api/skills/${skill.id}/download`}
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeLinecap="round" strokeLinejoin="round" />
+                    <polyline points="7 10 12 15 17 10" strokeLinecap="round" strokeLinejoin="round" />
+                    <line strokeLinecap="round" strokeLinejoin="round" x1="12" x2="12" y1="15" y2="3" />
+                  </svg>
+                  下载
+                </a>
+                <Link
+                  className="small-caps text-[var(--accent)] underline decoration-[var(--accent)]"
+                  href={`/skills/${skill.id}`}
+                >
+                  查看详情
+                </Link>
+              </div>
             </div>
           </article>
         ))}
