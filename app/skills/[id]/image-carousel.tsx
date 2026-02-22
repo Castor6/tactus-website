@@ -54,7 +54,7 @@ function Lightbox({
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const translateStart = useRef({ x: 0, y: 0 });
-  const lastClickTime = useRef(0);
+  const hasDragged = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -148,38 +148,33 @@ function Lightbox({
     setTranslate({ x: 0, y: 0 });
   }, []);
 
-  // Double-click to toggle zoom
+  // Single-click to toggle zoom (skip if user was dragging)
   const handleImageClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      const now = Date.now();
-      if (now - lastClickTime.current < 350) {
-        // Double-click: toggle between 1x and DOUBLE_TAP_SCALE
-        if (scale > 1) {
-          setScale(1);
-          setTranslate({ x: 0, y: 0 });
-        } else {
-          // Zoom into the clicked point
-          const img = imgRef.current;
-          if (img) {
-            const rect = img.getBoundingClientRect();
-            const offsetX = e.clientX - rect.left - rect.width / 2;
-            const offsetY = e.clientY - rect.top - rect.height / 2;
-            setScale(DOUBLE_TAP_SCALE);
-            setTranslate(
-              clampTranslate(
-                -offsetX * (DOUBLE_TAP_SCALE - 1),
-                -offsetY * (DOUBLE_TAP_SCALE - 1),
-                DOUBLE_TAP_SCALE,
-              ),
-            );
-          } else {
-            setScale(DOUBLE_TAP_SCALE);
-          }
-        }
-        lastClickTime.current = 0;
+      if (hasDragged.current) return;
+
+      if (scale > 1) {
+        setScale(1);
+        setTranslate({ x: 0, y: 0 });
       } else {
-        lastClickTime.current = now;
+        // Zoom into the clicked point
+        const img = imgRef.current;
+        if (img) {
+          const rect = img.getBoundingClientRect();
+          const offsetX = e.clientX - rect.left - rect.width / 2;
+          const offsetY = e.clientY - rect.top - rect.height / 2;
+          setScale(DOUBLE_TAP_SCALE);
+          setTranslate(
+            clampTranslate(
+              -offsetX * (DOUBLE_TAP_SCALE - 1),
+              -offsetY * (DOUBLE_TAP_SCALE - 1),
+              DOUBLE_TAP_SCALE,
+            ),
+          );
+        } else {
+          setScale(DOUBLE_TAP_SCALE);
+        }
       }
     },
     [scale, clampTranslate],
@@ -191,6 +186,7 @@ function Lightbox({
       if (scale <= 1 && !(imgRef.current && imgRef.current.naturalHeight / imgRef.current.naturalWidth > 1.5)) return;
       e.preventDefault();
       isDragging.current = true;
+      hasDragged.current = false;
       dragStart.current = { x: e.clientX, y: e.clientY };
       translateStart.current = { ...translate };
     },
@@ -202,6 +198,9 @@ function Lightbox({
       if (!isDragging.current) return;
       const dx = e.clientX - dragStart.current.x;
       const dy = e.clientY - dragStart.current.y;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        hasDragged.current = true;
+      }
       setTranslate(
         clampTranslate(translateStart.current.x + dx, translateStart.current.y + dy, scale),
       );
