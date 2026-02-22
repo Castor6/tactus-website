@@ -36,7 +36,16 @@ export default async function SkillDetailPage(props: {
         返回 Skills 广场
       </Link>
 
-      <section className="mt-6 rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white p-8 shadow-[0_1px_2px_rgba(26,26,26,0.04)]">
+      <section className="mt-6 overflow-hidden rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white shadow-[0_1px_2px_rgba(26,26,26,0.04)]">
+        {skill.imageKey ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            alt={`${skill.name} cover`}
+            className="h-56 w-full object-cover sm:h-72"
+            src={`/api/skills/${skill.id}/image`}
+          />
+        ) : null}
+        <div className="p-8">
         <h1 className="headline-serif text-4xl text-[var(--foreground)]">{skill.name}</h1>
         <p className="mt-3 text-lg text-[var(--muted-foreground)]">{skill.description}</p>
 
@@ -66,6 +75,7 @@ export default async function SkillDetailPage(props: {
           isOwner={isOwner}
           skillId={skill.id}
         />
+        </div>
       </section>
     </main>
   );
