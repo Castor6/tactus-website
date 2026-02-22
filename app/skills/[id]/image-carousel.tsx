@@ -371,7 +371,7 @@ export function ImageCarousel({ imageUrls, alt }: ImageCarouselProps) {
 
   return (
     <>
-      <div className="relative">
+      <div className="group relative">
         {/* Image track */}
         <div className="overflow-hidden">
           <div
@@ -392,20 +392,20 @@ export function ImageCarousel({ imageUrls, alt }: ImageCarouselProps) {
           </div>
         </div>
 
-        {/* Left arrow */}
+        {/* Left arrow – hidden by default, visible on hover */}
         <button
           aria-label="Previous image"
-          className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm transition-colors hover:bg-black/50"
+          className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white opacity-0 transition-opacity duration-200 hover:bg-black/50 group-hover:opacity-100"
           onClick={goToPrev}
           type="button"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
 
-        {/* Right arrow */}
+        {/* Right arrow – hidden by default, visible on hover */}
         <button
           aria-label="Next image"
-          className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm transition-colors hover:bg-black/50"
+          className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white opacity-0 transition-opacity duration-200 hover:bg-black/50 group-hover:opacity-100"
           onClick={goToNext}
           type="button"
         >
@@ -430,7 +430,7 @@ export function ImageCarousel({ imageUrls, alt }: ImageCarouselProps) {
         </div>
 
         {/* Counter badge */}
-        <div className="absolute right-3 top-3 rounded-full bg-black/30 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+        <div className="absolute right-3 top-3 rounded-full bg-black/30 px-2.5 py-0.5 text-xs font-medium text-white">
           {currentIndex + 1} / {imageUrls.length}
         </div>
       </div>
