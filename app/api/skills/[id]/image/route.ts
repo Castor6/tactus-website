@@ -30,7 +30,7 @@ export async function GET(request: Request, context: RouteContext) {
       headers: {
         "Content-Type": image.contentType,
         "Content-Length": String(image.size),
-        "Cache-Control": "public, max-age=86400",
+        "Cache-Control": "public, max-age=86400, immutable",
       },
     });
   } catch (error) {
