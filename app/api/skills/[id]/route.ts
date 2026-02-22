@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { getSkillById, updateSkill } from "@/lib/db";
-import { createSkillFileKey, deleteSkillFile, uploadZipToR2 } from "@/lib/r2";
+import { createSkillFileKey, createSkillImageKey, deleteSkillFile, deleteSkillImage, uploadImageToR2, uploadZipToR2, validateImageFile } from "@/lib/r2";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -60,6 +60,7 @@ export async function PUT(request: Request, context: RouteContext) {
     const name = formData.get("name");
     const description = formData.get("description");
     const file = formData.get("file");
+    const image = formData.get("image");
 
     const updateInput: Parameters<typeof updateSkill>[1] = {};
 
@@ -87,6 +88,26 @@ export async function PUT(request: Request, context: RouteContext) {
       } catch {
         console.warn("Failed to delete old R2 file:", oldFileKey);
       }
+    }
+
+    if (image instanceof File && image.size > 0) {
+      const imageError = validateImageFile(image);
+      if (imageError) {
+        return Response.json({ error: imageError }, { status: 400 });
+      }
+
+      const newImageKey = createSkillImageKey(image.name, session.user.id);
+      await uploadImageToR2({ key: newImageKey, file: image, uploadedBy: session.user.id });
+
+      if (existingSkill.imageKey) {
+        try {
+          await deleteSkillImage(existingSkill.imageKey);
+        } catch {
+          console.warn("Failed to delete old image:", existingSkill.imageKey);
+        }
+      }
+
+      updateInput.imageKey = newImageKey;
     }
 
     const skill = await updateSkill(id, updateInput);

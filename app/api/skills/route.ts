@@ -6,6 +6,7 @@ type CreateSkillBody = {
   description?: unknown;
   fileKey?: unknown;
   fileSize?: unknown;
+  imageKey?: unknown;
 };
 
 function badRequest(message: string) {
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
   const description = typeof body.description === "string" ? body.description.trim() : "";
   const fileKey = typeof body.fileKey === "string" ? body.fileKey.trim() : "";
   const fileSize = typeof body.fileSize === "number" && Number.isFinite(body.fileSize) ? body.fileSize : null;
+  const imageKey = typeof body.imageKey === "string" ? body.imageKey.trim() : null;
 
   if (!name || !description || !fileKey) {
     return badRequest("name, description and fileKey are required");
@@ -52,6 +54,7 @@ export async function POST(request: Request) {
       description,
       fileKey,
       fileSize,
+      imageKey,
       authorId: session.user.id,
       authorName: session.user.name ?? "GitHub User",
       authorAvatar: session.user.image ?? null,
