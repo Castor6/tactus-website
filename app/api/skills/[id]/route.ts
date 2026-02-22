@@ -160,7 +160,6 @@ export async function PUT(request: Request, context: RouteContext) {
           } catch { /* ignore */ }
         }
         // Only apply if different from existing
-        const existingSet = new Set(existingSkill.imageKeys);
         const keptSet = new Set(keptKeys);
         const changed = existingSkill.imageKeys.length !== keptKeys.length || existingSkill.imageKeys.some((k) => !keptSet.has(k));
         if (changed) {

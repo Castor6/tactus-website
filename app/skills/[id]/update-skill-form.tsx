@@ -4,53 +4,94 @@ import { useRef, useState } from "react";
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_IMAGES = 5;
 
 type UpdateFormProps = {
   skillId: string;
   currentName: string;
   currentDescription: string;
-  currentImageUrl: string | null;
+  currentImageUrls: string[];
+  currentImageKeys: string[];
   onOpenChange?: (isOpen: boolean) => void;
 };
 
-export function UpdateSkillForm({ skillId, currentName, currentDescription, currentImageUrl, onOpenChange }: UpdateFormProps) {
+type ImageItem = {
+  type: "existing";
+  url: string;
+  key: string;
+} | {
+  type: "new";
+  file: File;
+  previewUrl: string;
+};
+
+export function UpdateSkillForm({ skillId, currentName, currentDescription, currentImageUrls, currentImageKeys, onOpenChange }: UpdateFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(currentName);
   const [description, setDescription] = useState(currentDescription);
   const [file, setFile] = useState<File | null>(null);
-  const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(currentImageUrl);
+  const [imageItems, setImageItems] = useState<ImageItem[]>(() =>
+    currentImageKeys.map((key, i) => ({ type: "existing" as const, url: currentImageUrls[i] ?? "", key })),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  function handleImageChange(file: File | null) {
-    if (!file) {
-      setImage(null);
-      setImagePreview(currentImageUrl);
+  function handleImagesChange(files: FileList | null) {
+    if (!files || files.length === 0) return;
+
+    const remaining = MAX_IMAGES - imageItems.length;
+    if (remaining <= 0) {
+      setError(`最多上传 ${MAX_IMAGES} 张图片`);
       return;
     }
 
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError("仅支持 JPEG、PNG、WebP、GIF 格式的图片");
-      return;
+    const newItems: ImageItem[] = [];
+
+    for (let i = 0; i < Math.min(files.length, remaining); i++) {
+      const f = files[i];
+      if (!ALLOWED_IMAGE_TYPES.includes(f.type)) {
+        setError("仅支持 JPEG、PNG、WebP、GIF 格式的图片");
+        return;
+      }
+      if (f.size > MAX_IMAGE_SIZE) {
+        setError("图片大小不能超过 2MB");
+        return;
+      }
+      newItems.push({ type: "new", file: f, previewUrl: URL.createObjectURL(f) });
     }
 
-    if (file.size > MAX_IMAGE_SIZE) {
-      setError("图片大小不能超过 2MB");
-      return;
+    if (files.length > remaining) {
+      setError(`已选择前 ${remaining} 张，最多上传 ${MAX_IMAGES} 张图片`);
+    } else {
+      setError(null);
     }
 
-    setError(null);
-    setImage(file);
-    const url = URL.createObjectURL(file);
-    setImagePreview(url);
+    setImageItems((prev) => [...prev, ...newItems]);
+
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
   }
 
-  function clearImage() {
-    setImage(null);
-    setImagePreview(currentImageUrl);
+  function removeImageItem(index: number) {
+    setImageItems((prev) => {
+      const item = prev[index];
+      if (item.type === "new") {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  }
+
+  function resetImages() {
+    imageItems.forEach((item) => {
+      if (item.type === "new") URL.revokeObjectURL(item.previewUrl);
+    });
+    setImageItems(
+      currentImageKeys.map((key, i) => ({ type: "existing" as const, url: currentImageUrls[i] ?? "", key })),
+    );
     if (imageInputRef.current) {
       imageInputRef.current.value = "";
     }
@@ -73,8 +114,17 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, curr
       if (file) {
         formData.append("file", file);
       }
-      if (image) {
-        formData.append("image", image);
+
+      // Separate existing kept keys and new files
+      const keptKeys = imageItems.filter((item) => item.type === "existing").map((item) => (item as { type: "existing"; key: string }).key);
+      const newFiles = imageItems.filter((item) => item.type === "new").map((item) => (item as { type: "new"; file: File }).file);
+
+      // Always send keptImageKeys so the server knows which existing images to keep
+      formData.append("keptImageKeys", JSON.stringify(keptKeys));
+
+      // Append new images
+      for (const newFile of newFiles) {
+        formData.append("images", newFile);
       }
 
       const response = await fetch(`/api/skills/${skillId}`, {
@@ -89,7 +139,6 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, curr
 
       setSuccess("更新成功！");
       setFile(null);
-      clearImage();
       setIsOpen(false);
       onOpenChange?.(false);
       setTimeout(() => window.location.reload(), 1000);
@@ -138,34 +187,49 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, curr
         />
       </label>
 
-      <label className="grid gap-2">
-        <span className="small-caps text-[var(--muted-foreground)]">替换封面图片（可选，最大 2MB）</span>
-        <input
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="min-h-[44px] rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm"
-          onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
-          ref={imageInputRef}
-          type="file"
-        />
-        {imagePreview ? (
-          <div className="relative mt-2 inline-block">
-            <img
-              alt="封面预览"
-              className="h-32 w-auto rounded-md border border-[var(--border)] object-cover"
-              src={imagePreview}
-            />
-            {image ? (
-              <button
-                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600"
-                onClick={clearImage}
-                type="button"
-              >
-                ✕
-              </button>
-            ) : null}
+      <div className="grid gap-2">
+        <span className="small-caps text-[var(--muted-foreground)]">
+          封面图片（最多 {MAX_IMAGES} 张，每张最大 2MB）
+        </span>
+        <span className="text-xs text-[var(--muted-foreground)]">
+          当前 {imageItems.length}/{MAX_IMAGES} 张
+        </span>
+        {imageItems.length > 0 ? (
+          <div className="mt-1 flex flex-wrap gap-3">
+            {imageItems.map((item, index) => (
+              <div className="relative" key={item.type === "existing" ? item.key : item.previewUrl}>
+                <img
+                  alt={`图片 ${index + 1}`}
+                  className="h-24 w-24 rounded-md border border-[var(--border)] object-cover"
+                  src={item.type === "existing" ? item.url : item.previewUrl}
+                />
+                <button
+                  className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600"
+                  onClick={() => removeImageItem(index)}
+                  type="button"
+                >
+                  ✕
+                </button>
+                {item.type === "new" ? (
+                  <span className="absolute bottom-0.5 left-0.5 rounded bg-[var(--accent)] px-1 text-[10px] text-white">
+                    新
+                  </span>
+                ) : null}
+              </div>
+            ))}
           </div>
         ) : null}
-      </label>
+        {imageItems.length < MAX_IMAGES ? (
+          <input
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="min-h-[44px] rounded-md border border-[var(--border)] bg-white px-4 py-2 text-sm"
+            multiple
+            onChange={(e) => handleImagesChange(e.target.files)}
+            ref={imageInputRef}
+            type="file"
+          />
+        ) : null}
+      </div>
 
       <label className="grid gap-2">
         <span className="small-caps text-[var(--muted-foreground)]">替换 Zip 压缩包（可选）</span>
@@ -194,7 +258,7 @@ export function UpdateSkillForm({ skillId, currentName, currentDescription, curr
             setName(currentName);
             setDescription(currentDescription);
             setFile(null);
-            clearImage();
+            resetImages();
             setError(null);
             setSuccess(null);
           }}
