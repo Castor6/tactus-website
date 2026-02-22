@@ -256,31 +256,41 @@ export async function getSkillLikeCount(skillId: string): Promise<number> {
 
 export async function getSkillLikeCounts(skillIds: string[]): Promise<Record<string, number>> {
   if (skillIds.length === 0) return {};
-  const env = getCloudflareEnv();
-  const placeholders = skillIds.map(() => "?").join(", ");
-  const { results } = await env.DB.prepare(
-    `SELECT skill_id, COUNT(*) as cnt FROM skill_likes WHERE skill_id IN (${placeholders}) GROUP BY skill_id`,
-  )
-    .bind(...skillIds)
-    .all<{ skill_id: string; cnt: number }>();
+  try {
+    const env = getCloudflareEnv();
+    const placeholders = skillIds.map(() => "?").join(", ");
+    const { results } = await env.DB.prepare(
+      `SELECT skill_id, COUNT(*) as cnt FROM skill_likes WHERE skill_id IN (${placeholders}) GROUP BY skill_id`,
+    )
+      .bind(...skillIds)
+      .all<{ skill_id: string; cnt: number }>();
 
-  const counts: Record<string, number> = {};
-  for (const id of skillIds) counts[id] = 0;
-  for (const row of results ?? []) counts[row.skill_id] = row.cnt;
-  return counts;
+    const counts: Record<string, number> = {};
+    for (const id of skillIds) counts[id] = 0;
+    for (const row of results ?? []) counts[row.skill_id] = row.cnt;
+    return counts;
+  } catch {
+    // Gracefully degrade if skill_likes table doesn't exist yet
+    return {};
+  }
 }
 
 export async function getUserLikedSkillIds(userId: string, skillIds: string[]): Promise<Set<string>> {
   if (skillIds.length === 0 || !userId) return new Set();
-  const env = getCloudflareEnv();
-  const placeholders = skillIds.map(() => "?").join(", ");
-  const { results } = await env.DB.prepare(
-    `SELECT skill_id FROM skill_likes WHERE user_id = ? AND skill_id IN (${placeholders})`,
-  )
-    .bind(userId, ...skillIds)
-    .all<{ skill_id: string }>();
+  try {
+    const env = getCloudflareEnv();
+    const placeholders = skillIds.map(() => "?").join(", ");
+    const { results } = await env.DB.prepare(
+      `SELECT skill_id FROM skill_likes WHERE user_id = ? AND skill_id IN (${placeholders})`,
+    )
+      .bind(userId, ...skillIds)
+      .all<{ skill_id: string }>();
 
-  return new Set((results ?? []).map((r) => r.skill_id));
+    return new Set((results ?? []).map((r) => r.skill_id));
+  } catch {
+    // Gracefully degrade if skill_likes table doesn't exist yet
+    return new Set();
+  }
 }
 
 export type UpdateSkillInput = {
