@@ -351,7 +351,7 @@ export function ImageCarousel({ imageUrls, alt }: ImageCarouselProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt={`${alt} cover`}
-          className="h-56 w-full cursor-zoom-in object-cover sm:h-72"
+          className="max-h-[32rem] w-full cursor-zoom-in object-contain bg-black/5 dark:bg-white/5"
           onClick={() => openLightbox(0)}
           src={imageUrls[0]}
         />
@@ -383,7 +383,7 @@ export function ImageCarousel({ imageUrls, alt }: ImageCarouselProps) {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 alt={`${alt} image ${index + 1}`}
-                className="h-56 w-full shrink-0 cursor-zoom-in object-cover sm:h-72"
+                className="max-h-[32rem] w-full shrink-0 cursor-zoom-in object-contain bg-black/5 dark:bg-white/5"
                 key={index}
                 loading={index === 0 ? undefined : "lazy"}
                 onClick={() => openLightbox(index)}
