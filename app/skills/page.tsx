@@ -62,9 +62,21 @@ export default async function SkillsPage(props: {
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         {skills.map((skill) => (
           <article
-            className="rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white p-6 shadow-[0_1px_2px_rgba(26,26,26,0.04)]"
+            className="overflow-hidden rounded-lg border border-[var(--border)] border-t-2 border-t-[var(--accent)] bg-white shadow-[0_1px_2px_rgba(26,26,26,0.04)]"
             key={skill.id}
           >
+            {skill.imageKey ? (
+              <Link href={`/skills/${skill.id}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt={`${skill.name} cover`}
+                  className="h-40 w-full object-cover"
+                  loading="lazy"
+                  src={`/api/skills/${skill.id}/image`}
+                />
+              </Link>
+            ) : null}
+            <div className="p-6">
             <h2 className="headline-serif text-2xl text-[var(--foreground)]">{skill.name}</h2>
             <p className="mt-2 text-[var(--muted-foreground)]">{skill.description}</p>
 
@@ -112,6 +124,7 @@ export default async function SkillsPage(props: {
                   查看详情
                 </Link>
               </div>
+            </div>
             </div>
           </article>
         ))}
