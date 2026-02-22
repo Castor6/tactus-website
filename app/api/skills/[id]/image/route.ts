@@ -5,16 +5,23 @@ type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const { id } = await context.params;
+  const url = new URL(request.url);
+  const index = Math.max(0, parseInt(url.searchParams.get("index") ?? "0", 10) || 0);
 
   try {
     const skill = await getApprovedSkillById(id);
-    if (!skill || !skill.imageKey) {
+    if (!skill || skill.imageKeys.length === 0) {
       return new Response("Not found", { status: 404 });
     }
 
-    const image = await getSkillImage(skill.imageKey);
+    const imageKey = skill.imageKeys[Math.min(index, skill.imageKeys.length - 1)];
+    if (!imageKey) {
+      return new Response("Not found", { status: 404 });
+    }
+
+    const image = await getSkillImage(imageKey);
     if (!image) {
       return new Response("Not found", { status: 404 });
     }

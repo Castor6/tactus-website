@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { getSkillById, updateSkill } from "@/lib/db";
-import { createSkillFileKey, createSkillImageKey, deleteSkillFile, deleteSkillImage, uploadImageToR2, uploadZipToR2, validateImageFile } from "@/lib/r2";
+import { createSkillFileKey, createSkillImageKey, deleteSkillFile, deleteSkillImages, uploadImageToR2, uploadZipToR2, validateImageFile } from "@/lib/r2";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -99,15 +99,78 @@ export async function PUT(request: Request, context: RouteContext) {
       const newImageKey = createSkillImageKey(image.name, session.user.id);
       await uploadImageToR2({ key: newImageKey, file: image, uploadedBy: session.user.id });
 
-      if (existingSkill.imageKey) {
+      if (existingSkill.imageKeys.length > 0) {
         try {
-          await deleteSkillImage(existingSkill.imageKey);
+          await deleteSkillImages(existingSkill.imageKeys);
         } catch {
-          console.warn("Failed to delete old image:", existingSkill.imageKey);
+          console.warn("Failed to delete old images");
         }
       }
 
-      updateInput.imageKey = newImageKey;
+      updateInput.imageKeys = [newImageKey];
+    }
+
+    // Handle multiple new images
+    const images = formData.getAll("images");
+    if (images.length > 0) {
+      const newKeys: string[] = [];
+      for (const img of images) {
+        if (!(img instanceof File) || img.size === 0) continue;
+        const imgError = validateImageFile(img);
+        if (imgError) {
+          return Response.json({ error: imgError }, { status: 400 });
+        }
+        if (newKeys.length >= 5) break;
+        const key = createSkillImageKey(img.name, session.user.id);
+        await uploadImageToR2({ key, file: img, uploadedBy: session.user.id });
+        newKeys.push(key);
+      }
+
+      if (newKeys.length > 0) {
+        // Merge with kept keys or replace
+        const keptKeysRaw = formData.get("keptImageKeys");
+        let keptKeys: string[] = [];
+        if (typeof keptKeysRaw === "string" && keptKeysRaw.trim()) {
+          try {
+            const parsed = JSON.parse(keptKeysRaw);
+            if (Array.isArray(parsed)) keptKeys = parsed.filter((k): k is string => typeof k === "string");
+          } catch { /* ignore */ }
+        }
+        const mergedKeys = [...keptKeys, ...newKeys].slice(0, 5);
+
+        // Delete removed old keys
+        const removedKeys = existingSkill.imageKeys.filter((k) => !mergedKeys.includes(k));
+        if (removedKeys.length > 0) {
+          try { await deleteSkillImages(removedKeys); } catch { console.warn("Failed to delete removed images"); }
+        }
+
+        updateInput.imageKeys = mergedKeys;
+      }
+    }
+
+    // Handle image deletion / reorder without new uploads
+    if (!updateInput.imageKeys) {
+      const keptKeysRaw = formData.get("keptImageKeys");
+      if (typeof keptKeysRaw === "string") {
+        let keptKeys: string[] = [];
+        if (keptKeysRaw.trim()) {
+          try {
+            const parsed = JSON.parse(keptKeysRaw);
+            if (Array.isArray(parsed)) keptKeys = parsed.filter((k): k is string => typeof k === "string");
+          } catch { /* ignore */ }
+        }
+        // Only apply if different from existing
+        const existingSet = new Set(existingSkill.imageKeys);
+        const keptSet = new Set(keptKeys);
+        const changed = existingSkill.imageKeys.length !== keptKeys.length || existingSkill.imageKeys.some((k) => !keptSet.has(k));
+        if (changed) {
+          const removedKeys = existingSkill.imageKeys.filter((k) => !keptSet.has(k));
+          if (removedKeys.length > 0) {
+            try { await deleteSkillImages(removedKeys); } catch { console.warn("Failed to delete removed images"); }
+          }
+          updateInput.imageKeys = keptKeys;
+        }
+      }
     }
 
     const skill = await updateSkill(id, updateInput);

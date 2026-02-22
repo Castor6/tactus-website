@@ -153,3 +153,8 @@ export async function deleteSkillImage(key: string) {
   const env = getCloudflareEnv();
   await env.SKILLS_BUCKET.delete(key);
 }
+
+export async function deleteSkillImages(keys: string[]) {
+  const env = getCloudflareEnv();
+  await Promise.all(keys.map((key) => env.SKILLS_BUCKET.delete(key)));
+}

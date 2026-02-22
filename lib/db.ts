@@ -11,7 +11,7 @@ export type Skill = {
   authorAvatar: string | null;
   fileKey: string;
   fileSize: number | null;
-  imageKey: string | null;
+  imageKeys: string[];
   status: SkillStatus;
   downloads: number;
   createdAt: string;
@@ -44,7 +44,7 @@ export type CreateSkillInput = {
   authorAvatar?: string | null;
   fileKey: string;
   fileSize?: number | null;
-  imageKey?: string | null;
+  imageKeys?: string[];
 };
 
 const SKILL_COLUMNS = [
@@ -90,6 +90,17 @@ async function withColumnFallback<T>(queryFn: (columns: string) => Promise<T>): 
   }
 }
 
+function parseImageKeys(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.filter((k): k is string => typeof k === "string" && k.length > 0);
+  } catch {
+    // Old format: single key string (not JSON)
+  }
+  return raw.trim() ? [raw.trim()] : [];
+}
+
 function mapSkillRow(row: SkillRow): Skill {
   return {
     id: row.id,
@@ -100,7 +111,7 @@ function mapSkillRow(row: SkillRow): Skill {
     authorAvatar: row.author_avatar,
     fileKey: row.file_key,
     fileSize: row.file_size,
-    imageKey: row.image_key,
+    imageKeys: parseImageKeys(row.image_key),
     status: row.status,
     downloads: row.downloads,
     createdAt: row.created_at,
@@ -154,6 +165,8 @@ export async function createSkill(input: CreateSkillInput) {
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
 
+  const imageKeysJson = input.imageKeys && input.imageKeys.length > 0 ? JSON.stringify(input.imageKeys) : null;
+
   try {
     await env.DB.prepare(
       "INSERT INTO skills (id, name, description, author_id, author_name, author_avatar, file_key, file_size, image_key, status, downloads, created_at, updated_at, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, NULL, NULL)",
@@ -167,7 +180,7 @@ export async function createSkill(input: CreateSkillInput) {
         input.authorAvatar ?? null,
         input.fileKey,
         input.fileSize ?? null,
-        input.imageKey ?? null,
+        imageKeysJson,
         createdAt,
       )
       .run();
@@ -305,7 +318,7 @@ export type UpdateSkillInput = {
   description?: string;
   fileKey?: string;
   fileSize?: number | null;
-  imageKey?: string | null;
+  imageKeys?: string[];
 };
 
 export async function updateSkill(id: string, input: UpdateSkillInput) {
@@ -331,9 +344,9 @@ export async function updateSkill(id: string, input: UpdateSkillInput) {
     setClauses.push("file_size = ?");
     values.push(input.fileSize);
   }
-  if (input.imageKey !== undefined) {
+  if (input.imageKeys !== undefined) {
     setClauses.push("image_key = ?");
-    values.push(input.imageKey);
+    values.push(input.imageKeys.length > 0 ? JSON.stringify(input.imageKeys) : null);
   }
 
   values.push(id);
