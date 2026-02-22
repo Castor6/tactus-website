@@ -17,3 +17,14 @@ CREATE TABLE IF NOT EXISTS skills (
 CREATE INDEX IF NOT EXISTS idx_skills_status_created_at ON skills(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_skills_name ON skills(name);
 CREATE INDEX IF NOT EXISTS idx_skills_description ON skills(description);
+
+CREATE TABLE IF NOT EXISTS skill_likes (
+  skill_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  PRIMARY KEY (skill_id, user_id),
+  FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_skill_likes_skill_id ON skill_likes(skill_id);
+CREATE INDEX IF NOT EXISTS idx_skill_likes_user_id ON skill_likes(user_id);

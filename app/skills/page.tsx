@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { listApprovedSkills } from "@/lib/db";
+import { auth } from "@/auth";
+import { getSkillLikeCounts, getUserLikedSkillIds, listApprovedSkills } from "@/lib/db";
+import { LikeButton } from "./like-button";
 
 type SearchParams = Promise<{
   q?: string;
@@ -20,6 +22,15 @@ export default async function SkillsPage(props: {
   const searchParams = await props.searchParams;
   const keyword = searchParams.q?.trim() ?? "";
   const skills = await listApprovedSkills(keyword || undefined);
+
+  const session = await auth();
+  const userId = session?.user?.id;
+  const skillIds = skills.map((s) => s.id);
+
+  const [likeCounts, userLikedIds] = await Promise.all([
+    getSkillLikeCounts(skillIds),
+    userId ? getUserLikedSkillIds(userId, skillIds) : Promise.resolve(new Set<string>()),
+  ]);
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14 sm:px-10">
@@ -76,7 +87,13 @@ export default async function SkillsPage(props: {
               <span className="small-caps text-[var(--muted-foreground)]">
                 {skill.updatedAt ? `更新于 ${formatDate(skill.updatedAt)}` : formatDate(skill.createdAt)}
               </span>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <LikeButton
+                  initialCount={likeCounts[skill.id] ?? 0}
+                  initialLiked={userLikedIds.has(skill.id)}
+                  loggedIn={!!userId}
+                  skillId={skill.id}
+                />
                 <a
                   className="small-caps inline-flex items-center gap-1 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-medium tracking-[0.05em] text-white transition-all duration-200 hover:bg-[var(--accent-secondary)]"
                   href={`/api/skills/${skill.id}/download`}

@@ -219,6 +219,70 @@ export async function reviewSkill(id: string, status: Extract<SkillStatus, "appr
   return getSkillById(id);
 }
 
+// ── Skill Likes ─────────────────────────────────────────────
+
+export async function toggleSkillLike(skillId: string, userId: string): Promise<{ liked: boolean; count: number }> {
+  const env = getCloudflareEnv();
+
+  const existing = await env.DB.prepare(
+    "SELECT 1 FROM skill_likes WHERE skill_id = ? AND user_id = ?",
+  )
+    .bind(skillId, userId)
+    .first<{ 1: number }>();
+
+  if (existing) {
+    await env.DB.prepare("DELETE FROM skill_likes WHERE skill_id = ? AND user_id = ?")
+      .bind(skillId, userId)
+      .run();
+  } else {
+    await env.DB.prepare("INSERT INTO skill_likes (skill_id, user_id) VALUES (?, ?)")
+      .bind(skillId, userId)
+      .run();
+  }
+
+  const count = await getSkillLikeCount(skillId);
+  return { liked: !existing, count };
+}
+
+export async function getSkillLikeCount(skillId: string): Promise<number> {
+  const env = getCloudflareEnv();
+  const row = await env.DB.prepare(
+    "SELECT COUNT(*) as cnt FROM skill_likes WHERE skill_id = ?",
+  )
+    .bind(skillId)
+    .first<{ cnt: number }>();
+  return row?.cnt ?? 0;
+}
+
+export async function getSkillLikeCounts(skillIds: string[]): Promise<Record<string, number>> {
+  if (skillIds.length === 0) return {};
+  const env = getCloudflareEnv();
+  const placeholders = skillIds.map(() => "?").join(", ");
+  const { results } = await env.DB.prepare(
+    `SELECT skill_id, COUNT(*) as cnt FROM skill_likes WHERE skill_id IN (${placeholders}) GROUP BY skill_id`,
+  )
+    .bind(...skillIds)
+    .all<{ skill_id: string; cnt: number }>();
+
+  const counts: Record<string, number> = {};
+  for (const id of skillIds) counts[id] = 0;
+  for (const row of results ?? []) counts[row.skill_id] = row.cnt;
+  return counts;
+}
+
+export async function getUserLikedSkillIds(userId: string, skillIds: string[]): Promise<Set<string>> {
+  if (skillIds.length === 0 || !userId) return new Set();
+  const env = getCloudflareEnv();
+  const placeholders = skillIds.map(() => "?").join(", ");
+  const { results } = await env.DB.prepare(
+    `SELECT skill_id FROM skill_likes WHERE user_id = ? AND skill_id IN (${placeholders})`,
+  )
+    .bind(userId, ...skillIds)
+    .all<{ skill_id: string }>();
+
+  return new Set((results ?? []).map((r) => r.skill_id));
+}
+
 export type UpdateSkillInput = {
   name?: string;
   description?: string;
