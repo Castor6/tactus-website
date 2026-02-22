@@ -72,7 +72,7 @@ export default async function SkillsPage(props: {
                   alt={`${skill.name} cover`}
                   className="h-40 w-full object-cover"
                   loading="lazy"
-                  src={`/api/skills/${skill.id}/image`}
+                  src={`/api/skills/${skill.id}/image?v=${new Date(skill.updatedAt ?? skill.createdAt).getTime()}`}
                 />
               </Link>
             ) : null}

@@ -30,6 +30,7 @@ export default async function SkillDetailPage(props: {
 
   const session = await auth();
   const isOwner = session?.user?.id === skill.authorId;
+  const imageVersion = new Date(skill.updatedAt ?? skill.createdAt).getTime();
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14 sm:px-10">
@@ -41,7 +42,7 @@ export default async function SkillDetailPage(props: {
         {skill.imageKeys.length > 0 ? (
           <ImageCarousel
             alt={skill.name}
-            imageUrls={skill.imageKeys.map((_, i) => `/api/skills/${skill.id}/image?index=${i}`)}
+            imageUrls={skill.imageKeys.map((_, i) => `/api/skills/${skill.id}/image?index=${i}&v=${imageVersion}`)}
           />
         ) : null}
         <div className="p-8">
@@ -70,7 +71,7 @@ export default async function SkillDetailPage(props: {
         <SkillActions
           currentDescription={skill.description}
           currentImageKeys={skill.imageKeys}
-          currentImageUrls={skill.imageKeys.map((_, i) => `/api/skills/${skill.id}/image?index=${i}`)}
+          currentImageUrls={skill.imageKeys.map((_, i) => `/api/skills/${skill.id}/image?index=${i}&v=${imageVersion}`)}
           currentName={skill.name}
           isOwner={isOwner}
           skillId={skill.id}
