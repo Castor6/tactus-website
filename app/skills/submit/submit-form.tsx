@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
 
 type UploadPayload = {
   key: string;
@@ -19,9 +22,43 @@ export function SubmitForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  function handleImageChange(file: File | null) {
+    if (!file) {
+      setImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError("仅支持 JPEG、PNG、WebP、GIF 格式的图片");
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError("图片大小不能超过 2MB");
+      return;
+    }
+
+    setError(null);
+    setImage(file);
+    const url = URL.createObjectURL(file);
+    setImagePreview(url);
+  }
+
+  function clearImage() {
+    setImage(null);
+    setImagePreview(null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,6 +73,7 @@ export function SubmitForm() {
     setIsSubmitting(true);
 
     try {
+      // Upload zip file
       const uploadForm = new FormData();
       uploadForm.append("file", file);
 
@@ -49,6 +87,25 @@ export function SubmitForm() {
         throw new Error(uploadPayload.error || "上传失败");
       }
 
+      // Upload image (optional)
+      let imageKey: string | null = null;
+      if (image) {
+        const imageForm = new FormData();
+        imageForm.append("image", image);
+
+        const imageResponse = await fetch("/api/upload-image", {
+          method: "POST",
+          body: imageForm,
+        });
+        const imagePayload = (await imageResponse.json()) as UploadPayload & { error?: string };
+
+        if (!imageResponse.ok) {
+          throw new Error(imagePayload.error || "图片上传失败");
+        }
+        imageKey = imagePayload.key;
+      }
+
+      // Create skill record
       const createResponse = await fetch("/api/skills", {
         method: "POST",
         headers: {
@@ -59,6 +116,7 @@ export function SubmitForm() {
           description: description.trim(),
           fileKey: uploadPayload.key,
           fileSize: uploadPayload.size,
+          imageKey,
         }),
       });
       const createPayload = (await createResponse.json()) as SkillPayload & { error?: string };
@@ -71,6 +129,7 @@ export function SubmitForm() {
       setName("");
       setDescription("");
       setFile(null);
+      clearImage();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "提交失败");
     } finally {
@@ -99,6 +158,33 @@ export function SubmitForm() {
           placeholder="简要说明 skill 的功能和使用场景"
           value={description}
         />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="small-caps text-[var(--muted-foreground)]">封面图片（可选，最大 2MB）</span>
+        <input
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="min-h-[44px] rounded-md border border-[var(--border)] px-4 py-2 text-sm"
+          onChange={(event) => handleImageChange(event.target.files?.[0] ?? null)}
+          ref={imageInputRef}
+          type="file"
+        />
+        {imagePreview ? (
+          <div className="relative mt-2 inline-block">
+            <img
+              alt="封面预览"
+              className="h-40 w-auto rounded-md border border-[var(--border)] object-cover"
+              src={imagePreview}
+            />
+            <button
+              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white shadow hover:bg-red-600"
+              onClick={clearImage}
+              type="button"
+            >
+              ✕
+            </button>
+          </div>
+        ) : null}
       </label>
 
       <label className="grid gap-2">
