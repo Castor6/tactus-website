@@ -25,7 +25,7 @@ export default async function SkillsPage(props: {
     <main className="mx-auto w-full max-w-5xl px-6 py-14 sm:px-10">
       <div className="mb-2 flex items-center gap-4">
         <span className="section-rule" />
-        <span className="small-caps whitespace-nowrap text-[var(--accent)]">Skills Market</span>
+        <span className="small-caps whitespace-nowrap text-[var(--accent)]">Skills Plaza</span>
         <span className="section-rule" />
       </div>
 
