@@ -6,36 +6,37 @@ const features = [
     icon: "🧩",
     title: "Agent Skills 系统",
     description:
-      "导入标准 Skill 文件夹，在页面中执行脚本，并通过首次执行确认建立信任机制。",
+      "导入符合规范的 Skill 文件夹，在页面中安全执行脚本，首次运行需用户确认并可永久信任。",
   },
   {
     icon: "🤖",
-    title: "智能对话引擎",
+    title: "多供应商对话引擎",
     description:
-      "兼容 OpenAI API，多模型切换，支持 ReAct 工具调用与流式响应。",
+      "原生支持 Anthropic、Gemini 及 OpenAI 兼容接口，多模型随时切换，内置 ReAct 工具调用与流式响应。",
   },
   {
     icon: "🖼️",
     title: "图像视觉支持",
-    description: "支持视觉模型与图片粘贴发送，完成图文混合的多模态问答。",
+    description:
+      "逐模型配置视觉能力，聊天中直接粘贴图片发送，支持图文混合的多模态问答。",
   },
   {
     icon: "📄",
     title: "页面理解能力",
     description:
-      "智能提取网页内容、划词引用与上下文感知，提升对当前页面的理解精度。",
+      "Readability + Turndown 智能提取并转为 Markdown，划词引用、上下文感知，支持原始内容提取模式。",
   },
   {
     icon: "🔌",
     title: "HTTP MCP 支持",
     description:
-      "连接 MCP Server 自动发现工具，支持无认证、Bearer Token 与 OAuth 2.1。",
+      "连接 MCP Server 自动发现工具，支持无认证、Bearer Token 与 OAuth 2.1 多种鉴权方式。",
   },
   {
-    icon: "🎨",
-    title: "主题与个性化",
+    icon: "💾",
+    title: "隐私与本地存储",
     description:
-      "提供浅色/深色/跟随系统主题，悬浮球开关与中英文国际化切换。",
+      "会话历史与技能文件全部存储在本地 IndexedDB，支持消息编辑与一键复制，数据绝不上传。",
   },
 ];
 
@@ -95,7 +96,7 @@ export default function Home() {
               首个支持 Agent Skills 的浏览器 AI 扩展
             </h1>
             <p className="mt-8 max-w-2xl text-lg leading-relaxed text-[var(--muted-foreground)]">
-              Tactus 将 Agent Skills 引入浏览器环境，让 AI Agent 直接理解网页上下文、调用工具并执行可复用技能脚本。
+              Tactus 将 Agent Skills 规范引入浏览器，通过可扩展的技能系统让 AI Agent 完成复杂任务。常用工作流封装为脚本执行，替代重复自动化操作，更快更省 Token。
             </p>
             <div className="mt-12 flex flex-col gap-4 sm:flex-row">
               <a
@@ -134,8 +135,8 @@ export default function Home() {
               <p className="headline-serif mt-1 text-4xl text-[var(--foreground)]">Agent Skills</p>
             </div>
             <div className="text-center">
-              <p className="small-caps text-[var(--muted-foreground)]">Model Agnostic</p>
-              <p className="headline-serif mt-1 text-4xl text-[var(--foreground)]">OpenAI Compatible</p>
+              <p className="small-caps text-[var(--muted-foreground)]">Multi-Provider</p>
+              <p className="headline-serif mt-1 text-4xl text-[var(--foreground)]">Claude · Gemini · OpenAI</p>
             </div>
             <div className="text-center">
               <p className="small-caps text-[var(--muted-foreground)]">Browser Native</p>
@@ -152,7 +153,7 @@ export default function Home() {
             <span className="section-rule" />
           </div>
           <h2 className="headline-serif max-w-3xl text-4xl leading-tight text-[var(--foreground)] sm:text-5xl">
-            核心能力覆盖对话、视觉、页面理解与工具连接
+            核心能力覆盖多模型对话、视觉、页面理解与技能扩展
           </h2>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
